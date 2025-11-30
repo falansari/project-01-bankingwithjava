@@ -75,4 +75,23 @@ public abstract class User {
         this.passwordSalt = passwordSalt;
     }
 
+    /**
+     * Check the validity of the entered CPR and convert it into a valid number.
+     * @param cprInput String input of CPR number. Should be exactly 8 positive int digits only.
+     * @return Integer
+     */
+    Integer convertCPRInput(String cprInput) {
+        cprInput = cprInput.strip();
+        int requiredCPRLength = 8;
+
+        if (cprInput.length() != requiredCPRLength) throw new RuntimeException("Input must be exactly 8 digits only.");
+
+        Integer cpr = Integer.parseInt(cprInput);
+
+        // Convert back into String to check it remained 8 digits after parsing
+        cprInput = String.valueOf(cpr);
+        if (cprInput.length() != requiredCPRLength) throw new RuntimeException("Input must contain numbers only.");
+
+        return cpr;
+    }
 }
