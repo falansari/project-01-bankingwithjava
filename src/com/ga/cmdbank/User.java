@@ -1,5 +1,11 @@
 package com.ga.cmdbank;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+
 public abstract class User {
 
     public String getCprInput() {
@@ -65,6 +71,7 @@ public abstract class User {
     String userRole;
     String hashedPassword;
     String passwordSalt;
+    Path filePath = Paths.get("data/users.txt");
 
     /**
      * Default constructor.
@@ -83,11 +90,19 @@ public abstract class User {
      * @param passwordSalt String User's password's unique salt value.
      */
     public User(String cprInput, String firstName, String lastName, String userRole, String hashedPassword, String passwordSalt) {
+        if (cprInput.isEmpty()) throw new RuntimeException("CPR cannot be empty.");
         this.cprInput = cprInput;
         this.cpr = convertCPRInput(cprInput);
+
+        if (firstName.isEmpty()) throw new RuntimeException("First name cannot be empty.");
         this.firstName = firstName;
+
+        if (lastName.isEmpty()) throw new RuntimeException("Last name cannot be empty.");
         this.lastName = lastName;
+
+        if (userRole.isEmpty()) throw new RuntimeException("User role cannot be empty.");
         this.userRole = userRole;
+
         this.hashedPassword = hashedPassword;
         this.passwordSalt = passwordSalt;
     }
@@ -110,5 +125,25 @@ public abstract class User {
         if (cprInput.length() != requiredCPRLength) throw new RuntimeException("Input must contain numbers only.");
 
         return cpr;
+    }
+
+    /**
+     * Check if a user exists based on CPR number. Returns true if it exists, otherwise false.
+     * @param CPR int User CPR number
+     * @return boolean
+     * @throws IOException IOException
+     */
+    boolean exists(int CPR) throws IOException {
+        List<String> usersData = Files.readAllLines(filePath);
+
+        for (String user : usersData) {
+            System.out.println("User: " + user);
+            String[] userData = user.split(";");
+            int userCPR = Integer.parseInt(userData[0]);
+
+            if (userCPR == CPR) return true;
+        }
+
+        return false;
     }
 }

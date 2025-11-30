@@ -1,9 +1,8 @@
 package com.ga.cmdbank;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Scanner;
 
@@ -23,48 +22,56 @@ public class UserCreate extends User {
      * @param passwordSalt String User's password's unique salt value.
      */
     public UserCreate(String cprInput, String firstName, String lastName, String userRole, String hashedPassword, String passwordSalt) {
-        super(cprInput, firstName, lastName, userRole, hashedPassword, passwordSalt);
+        super(cprInput.trim(), firstName.trim().toLowerCase(), lastName.trim().toLowerCase(), userRole.trim(), hashedPassword, passwordSalt);
     }
 
     /**
      * Display the Create New User prompt.
      */
     void display() {
-        Scanner scanner = new Scanner(System.in);
+        try {
+            Scanner scanner = new Scanner(System.in);
 
-        System.out.println("CREATE NEW USER ACCOUNT");
-        System.out.println(" ");
-        System.out.print("CPR Number: ");
-        String cpr = scanner.nextLine();
+            System.out.println("CREATE NEW USER ACCOUNT");
+            System.out.println(" ");
+            System.out.print("CPR Number: ");
+            String cpr = scanner.nextLine();
 
-        System.out.println(" ");
-        System.out.print("First Name: ");
-        String firstName = scanner.nextLine();
-        System.out.println(" ");
+            System.out.println(" ");
+            System.out.print("First Name: ");
+            String firstName = scanner.nextLine();
+            System.out.println(" ");
 
-        System.out.print("Last Name: ");
-        String lastName = scanner.nextLine();
-        System.out.println(" ");
+            System.out.print("Last Name: ");
+            String lastName = scanner.nextLine();
+            System.out.println(" ");
 
-        System.out.print("User Type ([B] banker/ [C] customer): ");
-        userRole = scanner.nextLine();
-        switch (userRole) {
-            case "B":
-                userRole = "banker";
-                break;
-            case "C":
-            default:
-                userRole = "customer";
-                break;
+            System.out.print("User Type ([B] banker/ [C] customer): ");
+            userRole = scanner.nextLine();
+            switch (userRole.toUpperCase()) {
+                case "B":
+                    userRole = "banker";
+                    break;
+                case "C":
+                default:
+                    userRole = "customer";
+                    break;
+            }
+            System.out.println(" ");
+
+            System.out.println("Creating new user account...");
+            if (save(cpr, firstName, lastName, userRole)) {
+                System.out.println("New user account successfully created.");
+            } else {
+                System.out.println("New user account creation failed. Please try again.");
+                display();
+            }
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            System.out.println(" ");
+            display();
         }
-        System.out.println(" ");
 
-        System.out.println("Creating new user account...");
-        if (save(cpr, firstName, lastName, userRole)) {
-            System.out.println("New user account successfully created.");
-        } else {
-            System.out.println("New user account creation failed. Please try again.");
-        }
     }
 
     /**
@@ -75,14 +82,21 @@ public class UserCreate extends User {
      * @param userRole String user's role, 1 of 2 options: [banker, customer].
      * @return boolean
      */
-    boolean save(String cpr, String firstName, String lastName, String userRole) {
+    boolean save(String cpr, String firstName, String lastName, String userRole) throws IOException {
         User user = new UserCreate(cpr, firstName, lastName, userRole, "password", "salt");
+        String valueBreak = ";";
+        String userString = user.cpr + valueBreak + user.firstName + valueBreak + user.lastName + valueBreak + user.userRole + valueBreak + user.hashedPassword + valueBreak + user.passwordSalt;
 
-        Path filePath = Paths.get("users.txt");
-        String userString = user.cpr + "," + user.firstName + "," + user.lastName + "," + user.userRole + "," + user.hashedPassword + "," + user.passwordSalt + ";";
+        if (exists(Integer.parseInt(cpr))) {
+            throw new IOException("User with CPR " + cpr + " already exists.");
+        }
 
         try {
-            Files.writeString(filePath, userString, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            if (Files.exists(filePath)) {
+                Files.writeString(filePath, "\n" + userString, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
+            } else {
+                Files.writeString(filePath, userString, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            }
             System.out.println("Data saved to users.txt");
             return true;
         } catch (IOException e) {
