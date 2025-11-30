@@ -1,6 +1,7 @@
 package com.ga.cmdbank;
 
 public abstract class User {
+
     public String getCprInput() {
         return cprInput;
     }
@@ -57,14 +58,30 @@ public abstract class User {
         this.passwordSalt = passwordSalt;
     }
 
-    private String cprInput;
-    private Integer cpr;
-    private String firstName;
-    private String lastName;
-    private String userRole;
-    private String hashedPassword;
-    private String passwordSalt;
+    String cprInput;
+    Integer cpr;
+    String firstName;
+    String lastName;
+    String userRole;
+    String hashedPassword;
+    String passwordSalt;
 
+    /**
+     * Default constructor.
+     */
+    public User() {
+
+    }
+
+    /**
+     * Constructor for a new user account.
+     * @param cprInput String user's CPR number. Unique user identifier and login ID.
+     * @param firstName String user's first name.
+     * @param lastName String user's last name.
+     * @param userRole String user's role, 1 of 2 options: [banker, customer].
+     * @param hashedPassword String User's hashed password
+     * @param passwordSalt String User's password's unique salt value.
+     */
     public User(String cprInput, String firstName, String lastName, String userRole, String hashedPassword, String passwordSalt) {
         this.cprInput = cprInput;
         this.cpr = convertCPRInput(cprInput);
