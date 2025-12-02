@@ -5,6 +5,7 @@ import javax.crypto.spec.PBEKeySpec;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
 import java.util.Base64;
 
 /**
@@ -33,6 +34,24 @@ public interface IPassword {
     }
 
     /**
+     * Encode generated salt value into a string format.
+     * @param salt byte[] generated salt.
+     * @return String encoded salt.
+     */
+    static String base64Salt(byte[] salt) {
+        return Base64.getEncoder().encodeToString(salt);
+    }
+
+    /**
+     * Decode Base64 salt back into a byte[] format.
+     * @param base64salt Encoded salt.
+     * @return Decoded salt.
+     */
+    static byte[] decodeBase64Salt(String base64salt) {
+        return Base64.getDecoder().decode(base64salt);
+    }
+
+    /**
      * Generate and return a hashed version of the password using PBKDF2 algorithm.
      * @param plainPassword String  User's unencrypted password.
      * @param salt byte[]   Generated salt value.
@@ -58,6 +77,8 @@ public interface IPassword {
      * @throws InvalidKeySpecException Exception    Invalid specification key exception.
      */
     static boolean verifyPassword(String plainPassword, String storedHash, byte[] storedSalt) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        System.out.println("Should be plain pw: " + plainPassword);
+        System.out.println("stored salt: " + Arrays.toString(storedSalt));
         String newHash = hashPassword(plainPassword, storedSalt);
 
         return newHash.equals(storedHash);

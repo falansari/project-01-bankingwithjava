@@ -3,8 +3,14 @@ package com.ga.cmdbank;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
 import java.util.Scanner;
 
+/**
+ * Create new users. Privilege allowed to banker accounts only.
+ */
 public class UserCreate extends User implements IPassword {
     /**
      * Default constructor to access class methods.
@@ -81,22 +87,28 @@ public class UserCreate extends User implements IPassword {
      * @param userRole String user's role, 1 of 2 options: [banker, customer].
      * @return boolean
      */
-    boolean save(String cpr, String firstName, String lastName, String userRole) throws IOException {
-        User user = new UserCreate(cpr, firstName, lastName, userRole, cpr, IPassword.generateSalt());
+    boolean save(String cpr, String firstName, String lastName, String userRole) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        byte[] passwordSalt = IPassword.generateSalt();
+        String hashedPassword = IPassword.hashPassword(cpr, passwordSalt);
+        User user = new UserCreate(cpr, firstName, lastName, userRole, hashedPassword, passwordSalt);
         String valueBreak = ";";
-        String userString = user.cpr + valueBreak + user.firstName + valueBreak + user.lastName + valueBreak + user.userRole + valueBreak + user.hashedPassword + valueBreak + user.passwordSalt;
+        String userString = user.cpr + valueBreak + user.firstName + valueBreak + user.lastName + valueBreak + user.userRole + valueBreak + user.hashedPassword + valueBreak + IPassword.base64Salt(user.passwordSalt);
 
-        if (exists(Integer.parseInt(cpr))) {
-            throw new IOException("User with CPR " + cpr + " already exists.");
+        try {
+            int cprNumber = convertCPRInput(cpr);
+            if (exists(cprNumber)) {
+                throw new IOException("User with CPR " + cpr + " already exists.");
+            }
+        } catch (NumberFormatException e) {
+            throw new IOException("Invalid CPR format: " + cpr);
         }
 
         try {
             if (Files.exists(filePath)) {
                 Files.writeString(filePath, "\n" + userString, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
             } else {
-                Files.writeString(filePath, userString, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+                Files.writeString(filePath, userString, StandardOpenOption.CREATE_NEW, StandardOpenOption.APPEND);
             }
-            System.out.println("Data saved to users.txt");
             return true;
         } catch (IOException e) {
             System.err.println("Error writing to file: " + e.getMessage());

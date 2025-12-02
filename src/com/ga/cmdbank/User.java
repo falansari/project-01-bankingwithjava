@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class User {
@@ -134,16 +135,27 @@ public abstract class User {
      * @throws IOException IOException
      */
     boolean exists(int CPR) throws IOException {
+        String[] userData = read(CPR);
+
+        return userData != null;
+    }
+
+    /**
+     * Retrieve user's account data in users.txt file based on user CPR. Returns null if no matching user is found.
+     * @param CPR User's cpr number and username.
+     * @return String[] User's data array, in format: [cpr,firstname,lastname,accountRole,hashedPassword,passwordSalt]
+     * @throws IOException Input reading error.
+     */
+    String[] read(int CPR) throws IOException {
         List<String> usersData = Files.readAllLines(filePath);
 
         for (String user : usersData) {
-            System.out.println("User: " + user);
             String[] userData = user.split(";");
-            int userCPR = Integer.parseInt(userData[0]);
+            int userCPR = convertCPRInput(userData[0]);
 
-            if (userCPR == CPR) return true;
+            if (userCPR == CPR) return userData;
         }
 
-        return false;
+        return null;
     }
 }
