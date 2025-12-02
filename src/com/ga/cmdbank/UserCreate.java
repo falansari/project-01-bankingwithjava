@@ -1,12 +1,11 @@
 package com.ga.cmdbank;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.Scanner;
 
-public class UserCreate extends User {
+public class UserCreate extends User implements IPassword {
     /**
      * Default constructor to access class methods.
      */
@@ -21,7 +20,7 @@ public class UserCreate extends User {
      * @param hashedPassword String User's hashed password
      * @param passwordSalt String User's password's unique salt value.
      */
-    public UserCreate(String cprInput, String firstName, String lastName, String userRole, String hashedPassword, String passwordSalt) {
+    public UserCreate(String cprInput, String firstName, String lastName, String userRole, String hashedPassword, byte[] passwordSalt) {
         super(cprInput.trim(), firstName.trim().toLowerCase(), lastName.trim().toLowerCase(), userRole.trim(), hashedPassword, passwordSalt);
     }
 
@@ -83,7 +82,7 @@ public class UserCreate extends User {
      * @return boolean
      */
     boolean save(String cpr, String firstName, String lastName, String userRole) throws IOException {
-        User user = new UserCreate(cpr, firstName, lastName, userRole, "password", "salt");
+        User user = new UserCreate(cpr, firstName, lastName, userRole, cpr, IPassword.generateSalt());
         String valueBreak = ";";
         String userString = user.cpr + valueBreak + user.firstName + valueBreak + user.lastName + valueBreak + user.userRole + valueBreak + user.hashedPassword + valueBreak + user.passwordSalt;
 

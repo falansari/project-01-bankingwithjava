@@ -56,11 +56,11 @@ public abstract class User {
         this.hashedPassword = hashedPassword;
     }
 
-    public String getPasswordSalt() {
+    public byte[] getPasswordSalt() {
         return passwordSalt;
     }
 
-    public void setPasswordSalt(String passwordSalt) {
+    public void setPasswordSalt(byte[] passwordSalt) {
         this.passwordSalt = passwordSalt;
     }
 
@@ -70,7 +70,7 @@ public abstract class User {
     String lastName;
     String userRole;
     String hashedPassword;
-    String passwordSalt;
+    byte[] passwordSalt;
     Path filePath = Paths.get("data/users.txt");
 
     /**
@@ -89,7 +89,7 @@ public abstract class User {
      * @param hashedPassword String User's hashed password
      * @param passwordSalt String User's password's unique salt value.
      */
-    public User(String cprInput, String firstName, String lastName, String userRole, String hashedPassword, String passwordSalt) {
+    public User(String cprInput, String firstName, String lastName, String userRole, String hashedPassword, byte[] passwordSalt) {
         if (cprInput.isEmpty()) throw new RuntimeException("CPR cannot be empty.");
         this.cprInput = cprInput;
         this.cpr = convertCPRInput(cprInput);
