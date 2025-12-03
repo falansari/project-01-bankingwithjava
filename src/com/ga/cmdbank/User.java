@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 
 public abstract class User {
@@ -111,21 +110,26 @@ public abstract class User {
     /**
      * Check the validity of the entered CPR and convert it into a valid number.
      * @param cprInput String input of CPR number. Should be exactly 8 positive int digits only.
-     * @return Integer
+     * @return int
      */
-    Integer convertCPRInput(String cprInput) {
+    int convertCPRInput(String cprInput) {
         cprInput = cprInput.strip();
         int requiredCPRLength = 8;
 
         if (cprInput.length() != requiredCPRLength) throw new RuntimeException("Input must be exactly 8 digits only.");
 
-        Integer cpr = Integer.parseInt(cprInput);
+        cprInput = cprInput.replaceAll("[^0-9]", ""); // remove all non-numeric characters from the string
 
-        // Convert back into String to check it remained 8 digits after parsing
-        cprInput = String.valueOf(cpr);
-        if (cprInput.length() != requiredCPRLength) throw new RuntimeException("Input must contain numbers only.");
+        // Placed in Try/Catch to rethrow NumberFormatException error into a custom RuntimeException.
+        try {
+            int cpr = Integer.parseInt(cprInput);
 
-        return cpr;
+            if (cprInput.length() != requiredCPRLength) throw new RuntimeException("Input must contain numbers only.");
+
+            return cpr;
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Input must contain numbers only.");
+        }
     }
 
     /**
