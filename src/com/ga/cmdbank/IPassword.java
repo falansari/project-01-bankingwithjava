@@ -77,8 +77,6 @@ public interface IPassword {
      * @throws InvalidKeySpecException Exception    Invalid specification key exception.
      */
     static boolean verifyPassword(String plainPassword, String storedHash, byte[] storedSalt) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        System.out.println("Should be plain pw: " + plainPassword);
-        System.out.println("stored salt: " + Arrays.toString(storedSalt));
         String newHash = hashPassword(plainPassword, storedSalt);
 
         return newHash.equals(storedHash);

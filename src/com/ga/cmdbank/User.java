@@ -8,59 +8,59 @@ import java.util.List;
 
 public abstract class User {
 
-    public String getCprInput() {
+    String getCprInput() {
         return cprInput;
     }
 
-    public void setCprInput(String cprInput) {
-        this.cprInput = cprInput;
+    void setCprInput(String cprInput) {
+        this.cprInput = cprInput.trim();
     }
 
-    public Integer getCpr() {
+    Integer getCpr() {
         return cpr;
     }
 
-    public void setCpr(Integer cpr) {
+    void setCpr(Integer cpr) {
         this.cpr = cpr;
     }
 
-    public String getFirstName() {
+    String getFirstName() {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    void setFirstName(String firstName) {
+        this.firstName = firstName.trim().toLowerCase();
     }
 
-    public String getLastName() {
+    String getLastName() {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    void setLastName(String lastName) {
+        this.lastName = lastName.trim().toLowerCase();
     }
 
-    public String getUserRole() {
+    String getUserRole() {
         return userRole;
     }
 
-    public void setUserRole(String userRole) {
-        this.userRole = userRole;
+    void setUserRole(String userRole) {
+        this.userRole = userRole.trim().toLowerCase();
     }
 
-    public String getHashedPassword() {
+    String getHashedPassword() {
         return hashedPassword;
     }
 
-    public void setHashedPassword(String hashedPassword) {
+    void setHashedPassword(String hashedPassword) {
         this.hashedPassword = hashedPassword;
     }
 
-    public byte[] getPasswordSalt() {
+    byte[] getPasswordSalt() {
         return passwordSalt;
     }
 
-    public void setPasswordSalt(byte[] passwordSalt) {
+    void setPasswordSalt(byte[] passwordSalt) {
         this.passwordSalt = passwordSalt;
     }
 
@@ -91,20 +91,20 @@ public abstract class User {
      */
     public User(String cprInput, String firstName, String lastName, String userRole, String hashedPassword, byte[] passwordSalt) {
         if (cprInput.isEmpty()) throw new RuntimeException("CPR cannot be empty.");
-        this.cprInput = cprInput;
-        this.cpr = convertCPRInput(cprInput);
+        this.setCprInput(cprInput);
+        this.setCpr(convertCPRInput(cprInput));
 
         if (firstName.isEmpty()) throw new RuntimeException("First name cannot be empty.");
-        this.firstName = firstName;
+        this.setFirstName(firstName);
 
         if (lastName.isEmpty()) throw new RuntimeException("Last name cannot be empty.");
-        this.lastName = lastName;
+        this.setLastName(lastName);
 
         if (userRole.isEmpty()) throw new RuntimeException("User role cannot be empty.");
-        this.userRole = userRole;
+        this.setUserRole(userRole);
 
-        this.hashedPassword = hashedPassword;
-        this.passwordSalt = passwordSalt;
+        this.setHashedPassword(hashedPassword);
+        this.setPasswordSalt(passwordSalt);
     }
 
     /**

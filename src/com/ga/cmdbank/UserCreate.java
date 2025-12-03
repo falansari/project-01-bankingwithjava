@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
 import java.util.Scanner;
 
 /**
@@ -27,11 +26,11 @@ public class UserCreate extends User implements IPassword {
      * @param passwordSalt String User's password's unique salt value.
      */
     public UserCreate(String cprInput, String firstName, String lastName, String userRole, String hashedPassword, byte[] passwordSalt) {
-        super(cprInput.trim(), firstName.trim().toLowerCase(), lastName.trim().toLowerCase(), userRole.trim(), hashedPassword, passwordSalt);
+        super(cprInput, firstName, lastName, userRole, hashedPassword, passwordSalt);
     }
 
     /**
-     * Display the Create New User prompt.
+     * Display the Create New User Command Line prompt.
      */
     void display() {
         try {
@@ -104,14 +103,12 @@ public class UserCreate extends User implements IPassword {
         }
 
         try {
-            if (Files.exists(filePath)) {
-                Files.writeString(filePath, "\n" + userString, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
-            } else {
-                Files.writeString(filePath, userString, StandardOpenOption.CREATE_NEW, StandardOpenOption.APPEND);
-            }
+            Files.writeString(filePath, userString + System.lineSeparator(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+
             return true;
         } catch (IOException e) {
             System.err.println("Error writing to file: " + e.getMessage());
+
             return false;
         }
     }
