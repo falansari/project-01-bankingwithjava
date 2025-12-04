@@ -75,7 +75,6 @@ public class UserCreate extends User implements IPassword {
             System.out.println(" ");
             display();
         }
-
     }
 
     /**
