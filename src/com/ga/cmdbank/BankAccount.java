@@ -80,6 +80,16 @@ public class BankAccount {
             throw new RuntimeException("Account type must be either " + cardTypes[0] + " or " + cardTypes[1] + " or " + cardTypes[2]);
 
         // TODO: Check user doesn't already have an account of the same type
+        for (String account : getAccountsData()) {
+            String[] accountData = account.split(";");
+
+            if (Integer.parseInt(accountData[1]) == this.userCPR) {
+                if (String.valueOf(accountData[2]).equals(this.accountType)) {
+                    throw new RuntimeException("This customer already has an account of type "
+                            + this.accountType + ". Please create a different type account or cancel.");
+                }
+            }
+        }
 
         // TODO: Create debit card based on card type
         switch (cardType) {
@@ -105,15 +115,13 @@ public class BankAccount {
         this.userCPR = userCPR;
         this.accountType = accountType;
         this.cardType = cardType;
-        System.out.println("account id: " + " cpr: " + " type: " + " card type: ");
-        BankAccount bankAccount = new BankAccount(generateBankAccountId(), userCPR, accountType, debitCardId, cardType);
+        BankAccount bankAccount = new BankAccount(this.bankAccountID, this.userCPR, this.accountType, debitCardId, this.cardType);
         String valueBreak = ";";
         String accountString = bankAccount.bankAccountID +
                 valueBreak + bankAccount.userCPR +
                 valueBreak + bankAccount.accountType +
                 valueBreak + bankAccount.debitCardId +
                 valueBreak + bankAccount.cardType;
-        System.out.println("bank account: " + accountString);
 
         try {
             Files.writeString(filepath, accountString + System.lineSeparator(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
@@ -222,7 +230,7 @@ public class BankAccount {
             }
 
         } catch (Exception e) {
-            System.err.println(e.getMessage() + " SOURCE: " + Arrays.toString(e.getStackTrace()));
+            System.err.println(e.getMessage());
             System.out.println(" ");
             displayCreateAccount(inputScanner);
         }

@@ -63,6 +63,7 @@ public class DebitMastercard implements IDebitcard {
             if (row.startsWith(systemDataRowPrefix)) {
                 // New row contents
                 systemData.set(_i, newRowData);
+                Files.write(filePath, systemData);
 
                 return cardId;
             }
@@ -87,7 +88,7 @@ public class DebitMastercard implements IDebitcard {
             if (row.startsWith(systemDataRowPrefix)) {
                 int separatorIndex = row.indexOf(":");
 
-                return Integer.parseInt(row.substring(separatorIndex));
+                return Integer.parseInt(row.substring(separatorIndex + 1));
             }
         }
 
