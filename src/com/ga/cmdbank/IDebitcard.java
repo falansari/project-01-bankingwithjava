@@ -18,11 +18,9 @@ public interface IDebitcard {
 
     /**
      * Generate a new card ID with a set length and prefix number code based on the card. Increment from last saved card ID.
-     * @param length int How many digits long the card number is.
-     * @param cardIdPrefix int First 2 digits in the card number.
      * @return int Generated card ID
      */
-    int generateCardId(int length, int cardIdPrefix);
+    int generateCardId() throws IOException;
 
     /**
      * Save the last generated card ID to its associated data file.

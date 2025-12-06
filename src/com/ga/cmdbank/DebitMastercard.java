@@ -13,28 +13,32 @@ public class DebitMastercard implements IDebitcard {
     final double withdrawLimitDaily = 5_000.0;
     final double transferLimitOwnAccountDaily = 20_000.0;
     final double transferLimitOtherAccountDaily = 10_000.0;
-    final int cardIdPrefix = 51;
+    final int cardIdPrefix = 510000000;
     final Path filepath = Paths.get("data/system.txt"); // Where system data is stored
     final String systemDataRowPrefix = "debit_mastercard_lastGenerated";
 
     /**
      * Generate a new card ID with a set length and prefix number code based on the card. Increment from last saved card ID.
      *
-     * @param length int How many digits long the card number is.
-     * @param cardIdPrefix int First 2 digits in the card number.
      * @return int Generated card ID
      */
     @Override
-    public int generateCardId(int length, int cardIdPrefix) {
+    public int generateCardId() throws IOException {
+        int lastGeneratedCardId = getLastGeneratedCardId(filepath);
 
+        if (lastGeneratedCardId == 0) {
+            cardId = cardIdPrefix + 1;
+        } else {
+            cardId = lastGeneratedCardId + 1;
+        }
 
-        return 0;
+        return cardId;
     }
 
     /**
      * Save the last generated card ID to its associated data file.
      *
-     * @param cardId   int Card ID
+     * @param cardId   String Card ID
      * @param filePath Path File path
      * @return int Saved Last Generated Card ID
      */
