@@ -83,22 +83,27 @@ public class UserRead extends User implements IPassword {
      * Display banker's main menu options.
      * @param userRead Object
      */
-    void displayMainMenuBanker(UserRead userRead) {
-        Scanner inputScanner = new Scanner(System.in);
+    void displayMainMenuBanker(UserRead userRead, Scanner inputScanner) {
         if (!Objects.equals(userRead.getUserRole(), "banker")) throw new RuntimeException("This menu may only display for a banker.");
 
         System.out.println("Welcome, " + userRead.getFirstName() + " " + userRead.getLastName());
         System.out.println("What would you like to do today?");
-        System.out.println("(C) Create new customer account");
+        System.out.println("(C) Create new customer");
+        System.out.println("(B) Create new customer bank account");
         System.out.println("(V) View customer's account data");
         System.out.println("(A) Access my own bank accounts");
         System.out.println("(E) Exit System");
         System.out.print("Choice (Type the letter associated with the option): ");
-        String choice = inputScanner.nextLine();
+        String choice = inputScanner.nextLine().strip();
 
         switch (choice.toLowerCase()) {
             case "c":
                 System.out.println("create new customer account");
+                break;
+
+            case "b":
+                BankAccount bankAccount = new BankAccount();
+                bankAccount.displayCreateAccount(inputScanner);
                 break;
 
             case "v":
@@ -115,7 +120,7 @@ public class UserRead extends User implements IPassword {
 
             default:
                 System.out.println("Please type in the letter corresponding to 1 of the choices only.");
-                displayMainMenuBanker(userRead);
+                displayMainMenuBanker(userRead, inputScanner);
                 break;
         }
     }
@@ -124,9 +129,7 @@ public class UserRead extends User implements IPassword {
      * Display customer's main menu options.
      * @param userRead Object
      */
-    void displayMainMenuCustomer(UserRead userRead) {
-        Scanner inputScanner = new Scanner(System.in);
-
+    void displayMainMenuCustomer(UserRead userRead, Scanner inputScanner) {
         System.out.println("Welcome, " + userRead.getFirstName() + " " + userRead.getLastName());
         System.out.println("What would you like to do today?");
         System.out.println("(V) View Bank Account Details");
@@ -160,7 +163,7 @@ public class UserRead extends User implements IPassword {
 
             default:
                 System.out.println("Please type in the letter corresponding to 1 of the choices only.");
-                displayMainMenuCustomer(userRead);
+                displayMainMenuCustomer(userRead, inputScanner);
                 break;
         }
     }

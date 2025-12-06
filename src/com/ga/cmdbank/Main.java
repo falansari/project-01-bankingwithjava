@@ -1,15 +1,18 @@
 package com.ga.cmdbank;
 
+import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) {
+        Scanner inputScanner = new Scanner(System.in); // Universal app scanner
         UserRead userRead = new UserRead().display();
 
         switch (userRead.getUserRole()) {
             case "customer":
-                userRead.displayMainMenuCustomer(userRead);
+                userRead.displayMainMenuCustomer(userRead, inputScanner);
                 break;
             case "banker":
-                userRead.displayMainMenuBanker(userRead);
+                userRead.displayMainMenuBanker(userRead, inputScanner);
                 break;
         }
     }

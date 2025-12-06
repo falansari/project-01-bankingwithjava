@@ -17,8 +17,16 @@ public class DebitMastercard implements IDebitcard {
     final Path filepath = Paths.get("data/system.txt"); // Where system data is stored
     final String systemDataRowPrefix = "debit_mastercard_lastGenerated";
 
+    public DebitMastercard() {}
+
+    public DebitMastercard(int cardId) {
+        this.cardId = cardId;
+    }
+
     /**
-     * Generate a new card ID with a set length and prefix number code based on the card. Increment from last saved card ID.
+     * Generate a new card ID with a set length and prefix number code based on the card.
+     * Increment from last saved card ID.
+     * Updates system.txt's last generated card field.
      *
      * @return int Generated card ID
      */
@@ -31,6 +39,8 @@ public class DebitMastercard implements IDebitcard {
         } else {
             cardId = lastGeneratedCardId + 1;
         }
+
+        saveLastGeneratedCardId(cardId, filepath);
 
         return cardId;
     }
