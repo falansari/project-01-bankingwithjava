@@ -37,5 +37,5 @@ public interface IDebitcard {
      * @param filepath Data file.
      * @return int Card ID
      */
-    int getLastGeneratedCardId(Path filepath);
+    int getLastGeneratedCardId(Path filepath) throws IOException;
 }

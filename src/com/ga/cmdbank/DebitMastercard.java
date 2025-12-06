@@ -63,11 +63,19 @@ public class DebitMastercard implements IDebitcard {
      * Get the last generated card id from stored data file.
      *
      * @param filepath Data file.
-     * @return int Card ID
+     * @return int Card ID, or 0 if none found.
      */
     @Override
-    public int getLastGeneratedCardId(Path filepath) {
+    public int getLastGeneratedCardId(Path filepath) throws IOException {
+        List<String> systemData = Files.readAllLines(filePath);
 
+        for (String row : systemData) {
+            if (row.startsWith(systemDataRowPrefix)) {
+                int separatorIndex = row.indexOf(":");
+
+                return Integer.parseInt(row.substring(separatorIndex));
+            }
+        }
 
         return 0;
     }
