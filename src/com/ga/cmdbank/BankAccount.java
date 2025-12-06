@@ -101,10 +101,16 @@ public class BankAccount {
 
             case "DebitMastercardTitanium":
                 // TODO: Create titanium card
+                DebitMastercardTitanium cardTitanium = new DebitMastercardTitanium();
+                cardTitanium.cardId = cardTitanium.generateCardId();
+                debitCardId = cardTitanium.cardId;
                 break;
 
             case "DebitMastercardPlatinum":
                 // TODO: Create platinum card
+                DebitMastercardPlatinum cardPlatinum = new DebitMastercardPlatinum();
+                cardPlatinum.cardId = cardPlatinum.generateCardId();
+                debitCardId = cardPlatinum.cardId;
                 break;
 
             default:
