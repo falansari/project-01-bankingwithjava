@@ -32,7 +32,6 @@ public class BankAccountTransaction extends BankAccount {
                 accountsData.set(_i, newRowData);
                 Files.write(filepath, accountsData);
 
-                // TODO: Add a transaction in a transaction history file
                 return true;
             }
         }
@@ -86,10 +85,13 @@ public class BankAccountTransaction extends BankAccount {
                     break;
             }
 
-            // TODO: Add transaction in transaction history
             // TODO: Deposit amount limit should add up all transactions done on the same day for this account
 
             if (deposit(account, amount)) {
+                // Add transaction in a transaction history file
+                TransactionHistory transactionHistory = new TransactionHistory(user.cpr, account.bankAccountID, "deposit", amount);
+                transactionHistory.recordTransaction();
+
                 System.out.println("Amount of $" + amount + " successfully deposited.");
                 System.out.println(" ");
                 System.out.println("New Account Balance: $" + (account.balance + amount));
@@ -126,7 +128,6 @@ public class BankAccountTransaction extends BankAccount {
                 accountsData.set(_i, newRowData);
                 Files.write(filepath, accountsData);
 
-                // TODO: Add a transaction in a transaction history file
                 return true;
             }
         }
@@ -186,9 +187,11 @@ public class BankAccountTransaction extends BankAccount {
             // TODO: Withdraw amount limit should add up all transactions done on the same day for this account
             if (account.balance < amount) throw new IOException("Your account balance is not enough to withdraw $" + amount);
 
-            // TODO: Add transaction in transaction history
-
             if (withdraw(account, amount)) {
+                // Add transaction in a transaction history file
+                TransactionHistory transactionHistory = new TransactionHistory(user.cpr, account.bankAccountID, "withdraw", amount);
+                transactionHistory.recordTransaction();
+
                 System.out.println("Amount of $" + amount + " successfully withdrawn.");
                 System.out.println(" ");
                 System.out.println("New Account Balance: $" + (account.balance - amount));
@@ -234,7 +237,6 @@ public class BankAccountTransaction extends BankAccount {
                 accountsData.set(_i, newRowData);
                 Files.write(filepath, accountsData);
 
-                // TODO: Add a transaction in a transaction history file
                 accountsUpdated[0] = true;
             } else if (row.startsWith(String.valueOf(depositBankAccount.bankAccountID))) {
                 String[] rowData = row.split(";");
@@ -249,7 +251,6 @@ public class BankAccountTransaction extends BankAccount {
                 accountsData.set(_i, newRowData);
                 Files.write(filepath, accountsData);
 
-                // TODO: Add a transaction in a transaction history file
                 accountsUpdated[1] = true;
             }
         }
@@ -342,9 +343,11 @@ public class BankAccountTransaction extends BankAccount {
                 }
             }
 
-            // TODO: Add transaction in transaction history
-
             if (transfer(account, transferAccount, amount)) {
+                // Add transaction in a transaction history file
+                TransactionHistory transactionHistory = new TransactionHistory(user.cpr, account.bankAccountID, "transfer", amount, transferAccount.bankAccountID);
+                transactionHistory.recordTransaction();
+
                 System.out.println("Amount of $" + amount + " successfully transferred.");
                 System.out.println(" ");
                 System.out.println("New Account Balance: $" + (account.balance - amount));
