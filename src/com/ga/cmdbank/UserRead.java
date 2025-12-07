@@ -161,7 +161,7 @@ public class UserRead extends User implements IPassword {
                 break;
 
             case "w":
-                System.out.println("withdraw");
+                transaction.displayWithdraw(inputScanner, userRead);
                 break;
 
             case "d":
