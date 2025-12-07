@@ -40,6 +40,10 @@ public class BankAccount {
      */
     int debitCardId = 0;
     /**
+     * Account balance in USD
+     */
+    double balance = 0.0;
+    /**
      * Data save file path for bank accounts.
      */
     final Path filepath = Paths.get("data/accounts.txt");
@@ -47,12 +51,13 @@ public class BankAccount {
 
     public BankAccount() {}
 
-    public BankAccount(int accountId, int userCPR, String accountType, int cardId, String cardType) {
+    public BankAccount(int accountId, int userCPR, String accountType, int cardId, String cardType, double balance) {
         this.bankAccountID = accountId;
         this.userCPR = userCPR;
         this.accountType = accountType;
         this.debitCardId = cardId;
         this.cardType = cardType;
+        this.balance = balance;
     }
 
     /**
@@ -83,7 +88,7 @@ public class BankAccount {
         for (String account : getAccountsData()) {
             String[] accountData = account.split(";");
 
-            if (Integer.parseInt(accountData[1]) == this.userCPR) {
+            if (Integer.parseInt(accountData[1]) == this.userCPR) { // Check an account of this type doesn't already exist for this customer
                 if (String.valueOf(accountData[2]).equals(this.accountType)) {
                     throw new RuntimeException("This customer already has an account of type "
                             + this.accountType + ". Please create a different type account or cancel.");
@@ -119,7 +124,7 @@ public class BankAccount {
         this.userCPR = userCPR;
         this.accountType = accountType;
         this.cardType = cardType;
-        BankAccount bankAccount = new BankAccount(this.bankAccountID, this.userCPR, this.accountType, debitCardId, this.cardType);
+        BankAccount bankAccount = new BankAccount(this.bankAccountID, this.userCPR, this.accountType, debitCardId, this.cardType, this.balance);
         String valueBreak = ";";
         String accountString = bankAccount.bankAccountID +
                 valueBreak + bankAccount.userCPR +
@@ -178,6 +183,33 @@ public class BankAccount {
     List<String> getAccountsData() throws IOException {
 
         return Files.readAllLines(filepath);
+    }
+
+    /**
+     * Get bank account object based on account ID.
+     * @param accountId int Bank Account ID
+     * @return Object BankAccount
+     * @throws IOException Input Exception handling
+     */
+    BankAccount getAccount(int accountId) throws IOException {
+        BankAccount bankAccount = new BankAccount();
+
+        for (String account : getAccountsData()) {
+            String[] accountData = account.split(";");
+
+            if (Integer.parseInt(accountData[0]) == accountId) {
+                bankAccount.bankAccountID = accountId;
+                bankAccount.userCPR = Integer.parseInt(accountData[1]);
+                bankAccount.accountType = accountData[2];
+                bankAccount.debitCardId = Integer.parseInt(accountData[3]);
+                bankAccount.cardType = accountData[4];
+                bankAccount.balance = Double.parseDouble(accountData[5]);
+
+                return bankAccount;
+            }
+        }
+
+        throw new IOException("No account with ID " + accountId + " found.");
     }
 
     /**
@@ -270,6 +302,7 @@ public class BankAccount {
             System.out.println("Account Number: " + value[0]);
             System.out.println("Card ID: " + value[3]);
             System.out.println("Card Type: " + value[4]);
+            System.out.println("Account Balance: $" + value[5]);
             System.out.println(" ");
         });
     }
