@@ -92,11 +92,15 @@ public class UserRead extends User implements IPassword {
         System.out.println("(B) Create new customer bank account");
         System.out.println("(V) View customer's account data");
         System.out.println("(A) View my own bank accounts");
+        System.out.println("(D) Deposit into bank account");
+        System.out.println("(W) Withdraw from bank account");
+        System.out.println("(T) Transfer from bank account");
         System.out.println("(E) Exit System");
         System.out.print("Choice (Type the letter associated with the option): ");
         String choice = inputScanner.nextLine().strip();
 
         BankAccount bankAccount = new BankAccount();
+        BankAccountTransaction transaction = new BankAccountTransaction();
 
         switch (choice.toLowerCase()) {
             case "c":
@@ -123,6 +127,18 @@ public class UserRead extends User implements IPassword {
 
             case "a":
                 bankAccount.displayAccountsList(inputScanner, userRead);
+                break;
+
+            case "d":
+                transaction.displayDeposit(inputScanner, userRead);
+                break;
+
+            case "w":
+                transaction.displayWithdraw(inputScanner, userRead);
+                break;
+
+            case "t":
+                transaction.displayTransfer(inputScanner, userRead);
                 break;
 
             case "e":
@@ -169,7 +185,7 @@ public class UserRead extends User implements IPassword {
                 break;
 
             case "t":
-                System.out.println("transfer");
+                transaction.displayTransfer(inputScanner, userRead);
                 break;
 
             case "e":
