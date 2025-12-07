@@ -80,6 +80,21 @@ public abstract class User {
 
     }
 
+    public User(String cprInput, String firstName, String lastName, String userRole) {
+        if (cprInput.isEmpty()) throw new RuntimeException("CPR cannot be empty.");
+        this.setCprInput(cprInput);
+        this.setCpr(convertCPRInput(cprInput));
+
+        if (firstName.isEmpty()) throw new RuntimeException("First name cannot be empty.");
+        this.setFirstName(firstName);
+
+        if (lastName.isEmpty()) throw new RuntimeException("Last name cannot be empty.");
+        this.setLastName(lastName);
+
+        if (userRole.isEmpty()) throw new RuntimeException("User role cannot be empty.");
+        this.setUserRole(userRole);
+    }
+
     /**
      * Constructor for a new user account.
      * @param cprInput String user's CPR number. Unique user identifier and login ID.
