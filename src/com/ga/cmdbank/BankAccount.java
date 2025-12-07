@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
@@ -79,7 +79,7 @@ public class BankAccount {
         if(!this.cardType.equals(cardTypes[0]) && !this.cardType.equals(cardTypes[1]) && !this.cardType.equals(cardTypes[2]))
             throw new RuntimeException("Account type must be either " + cardTypes[0] + " or " + cardTypes[1] + " or " + cardTypes[2]);
 
-        // TODO: Check user doesn't already have an account of the same type
+        // Check user doesn't already have an account of the same type
         for (String account : getAccountsData()) {
             String[] accountData = account.split(";");
 
@@ -91,7 +91,7 @@ public class BankAccount {
             }
         }
 
-        // TODO: Create debit card based on card type
+        // Create debit card based on card type
         switch (cardType) {
             case "DebitMastercard":
                 DebitMastercard card = new DebitMastercard();
@@ -100,14 +100,12 @@ public class BankAccount {
                 break;
 
             case "DebitMastercardTitanium":
-                // TODO: Create titanium card
                 DebitMastercardTitanium cardTitanium = new DebitMastercardTitanium();
                 cardTitanium.cardId = cardTitanium.generateCardId();
                 debitCardId = cardTitanium.cardId;
                 break;
 
             case "DebitMastercardPlatinum":
-                // TODO: Create platinum card
                 DebitMastercardPlatinum cardPlatinum = new DebitMastercardPlatinum();
                 cardPlatinum.cardId = cardPlatinum.generateCardId();
                 debitCardId = cardPlatinum.cardId;
@@ -174,7 +172,7 @@ public class BankAccount {
 
     /**
      * Get the data of all the bank accounts saved in accounts.txt.
-     * @return List Accounts data, each row a different account.
+     * @return List Accounts data, each row a different account. Data file data row structure: accountId;userCPR;accountType;cardId;cardType
      * @throws IOException IOException handling.
      */
     List<String> getAccountsData() throws IOException {
@@ -240,5 +238,39 @@ public class BankAccount {
             System.out.println(" ");
             displayCreateAccount(inputScanner);
         }
+    }
+
+    // TODO: Add current balance
+    // TODO: Add buttons for moving to view transaction history of either account
+    // TODO: Add if it's over withdrawn and penalties if any
+    /**
+     * View customer's list of bank accounts and their details.
+     * @param scanner Scanner System.in input scanner
+     * @param user Object   UserRead object, must possess all the details (cpr, firstName, lastName
+     * @throws IOException Exception handling
+     */
+    void displayAccountsList(Scanner scanner, UserRead user) throws IOException {
+        System.out.println("BANK ACCOUNTS OF " + user.getFirstName() + " " + user.getLastName() + ":");
+        HashMap<Integer, String[]> userAccounts = new HashMap<>();
+        int count = 0;
+
+        for (String account : getAccountsData()) { // Find and store user's accounts
+            String[] accountData = account.split(";");
+
+            if (count == 2) break; // There can only be 1 checking and 1 savings account for a user, so allow breaking loop early.
+
+            if (user.getCpr() == Integer.parseInt(accountData[1])) {
+                userAccounts.put(count, accountData);
+                count++;
+            }
+        }
+
+        userAccounts.forEach((key, value) -> {
+            System.out.println(value[2].toUpperCase() + " ACCOUNT DETAILS:");
+            System.out.println("Account Number: " + value[0]);
+            System.out.println("Card ID: " + value[3]);
+            System.out.println("Card Type: " + value[4]);
+            System.out.println(" ");
+        });
     }
 }

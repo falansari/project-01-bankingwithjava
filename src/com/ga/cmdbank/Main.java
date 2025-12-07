@@ -1,9 +1,10 @@
 package com.ga.cmdbank;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Scanner inputScanner = new Scanner(System.in); // Universal app scanner
         UserRead userRead = new UserRead().display();
 

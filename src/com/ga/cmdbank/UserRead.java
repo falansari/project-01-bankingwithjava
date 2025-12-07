@@ -83,7 +83,7 @@ public class UserRead extends User implements IPassword {
      * Display banker's main menu options.
      * @param userRead Object
      */
-    void displayMainMenuBanker(UserRead userRead, Scanner inputScanner) {
+    void displayMainMenuBanker(UserRead userRead, Scanner inputScanner) throws IOException {
         if (!Objects.equals(userRead.getUserRole(), "banker")) throw new RuntimeException("This menu may only display for a banker.");
 
         System.out.println("Welcome, " + userRead.getFirstName() + " " + userRead.getLastName());
@@ -96,18 +96,29 @@ public class UserRead extends User implements IPassword {
         System.out.print("Choice (Type the letter associated with the option): ");
         String choice = inputScanner.nextLine().strip();
 
+        BankAccount bankAccount = new BankAccount();
+
         switch (choice.toLowerCase()) {
             case "c":
                 System.out.println("create new customer account");
                 break;
 
             case "b":
-                BankAccount bankAccount = new BankAccount();
                 bankAccount.displayCreateAccount(inputScanner);
                 break;
 
             case "v":
-                System.out.println("View customer's account details");
+                System.out.println("Customer CPR: ");
+                String cpr = inputScanner.nextLine().strip();
+                UserRead customer = new UserRead();
+                String[] customerData = customer.read(convertCPRInput(cpr));
+                customer.setCprInput(customerData[0]);
+                customer.setCpr(convertCPRInput(customerData[0]));
+                customer.setFirstName(customerData[1]);
+                customer.setLastName(customerData[2]);
+                customer.setUserRole(customerData[3]);
+
+                bankAccount.displayAccountsList(inputScanner, customer);
                 break;
 
             case "a":
@@ -129,7 +140,7 @@ public class UserRead extends User implements IPassword {
      * Display customer's main menu options.
      * @param userRead Object
      */
-    void displayMainMenuCustomer(UserRead userRead, Scanner inputScanner) {
+    void displayMainMenuCustomer(UserRead userRead, Scanner inputScanner) throws IOException {
         System.out.println("Welcome, " + userRead.getFirstName() + " " + userRead.getLastName());
         System.out.println("What would you like to do today?");
         System.out.println("(V) View Bank Account Details");
@@ -140,9 +151,11 @@ public class UserRead extends User implements IPassword {
         System.out.print("Choice (Type the letter associated with the option): ");
         String choice = inputScanner.nextLine();
 
+        BankAccount bankAccount = new BankAccount();
+
         switch (choice.toLowerCase()) {
             case "v":
-                System.out.println("View account");
+                bankAccount.displayAccountsList(inputScanner, userRead);
                 break;
 
             case "w":
