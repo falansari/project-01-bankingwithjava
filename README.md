@@ -19,14 +19,35 @@ https://github.com/users/falansari/projects/11/views/1
 - As a user, I want to deposit money into my deactivated account to pay the overdraft fees and gain access back into the account.
 
 ## ENTITY RELATIONSHIP DIAGRAM (ERD)
+![ERD.jpg](ERD.jpg)
 
 ## TECHNOLOGIES
 
 - JAVA LTS v17
 - IntelliJ IDEA Community Edition IDE
+- Mentorship from Copilot (help get unstuck with bugs and logical errors).
+- Pen and paper :)
 
 ## IMPLEMENTED FEATURES
+- **User Authentication System:**
+  - Account Registration (by banker)
+  - User accounts data file
+  - Password hashing
+  - User authentication
+- **Bank Account System:**
+  - Debit card support for mastercard, mastercard titanium, and mastercard platinum.
+  - Bank account creation (for registered users only) with an attached debit card.
+  - View list of bank accounts and their details (customer can see own only, banker anyone's)
+- **Transaction System:**
+  - Customer can transact from own accounts only, banker can from anyone's
+  - Deposit feature
+  - Withdraw feature
+  - Transfer feature
 
 ## UNRESOLVED ISSUES
+- Password reset by user
+- Transaction history
+- Search transactions
+- Overdraft system
 
 ## IDEAS FOR IMPROVEMENTS
