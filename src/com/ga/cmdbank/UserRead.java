@@ -91,7 +91,7 @@ public class UserRead extends User implements IPassword {
         System.out.println("(C) Create new customer");
         System.out.println("(B) Create new customer bank account");
         System.out.println("(V) View customer's account data");
-        System.out.println("(A) Access my own bank accounts");
+        System.out.println("(A) View my own bank accounts");
         System.out.println("(E) Exit System");
         System.out.print("Choice (Type the letter associated with the option): ");
         String choice = inputScanner.nextLine().strip();
@@ -122,7 +122,7 @@ public class UserRead extends User implements IPassword {
                 break;
 
             case "a":
-                System.out.println("Access own bank accounts details");
+                bankAccount.displayAccountsList(inputScanner, userRead);
                 break;
 
             case "e":
@@ -139,6 +139,7 @@ public class UserRead extends User implements IPassword {
     /**
      * Display customer's main menu options.
      * @param userRead Object
+     * @param inputScanner Scanner System.in scanner
      */
     void displayMainMenuCustomer(UserRead userRead, Scanner inputScanner) throws IOException {
         System.out.println("Welcome, " + userRead.getFirstName() + " " + userRead.getLastName());
@@ -152,6 +153,7 @@ public class UserRead extends User implements IPassword {
         String choice = inputScanner.nextLine();
 
         BankAccount bankAccount = new BankAccount();
+        BankAccountTransaction transaction = new BankAccountTransaction();
 
         switch (choice.toLowerCase()) {
             case "v":
@@ -163,7 +165,7 @@ public class UserRead extends User implements IPassword {
                 break;
 
             case "d":
-                System.out.println("deposit");
+                transaction.displayDeposit(inputScanner, userRead);
                 break;
 
             case "t":
