@@ -32,26 +32,25 @@ public class UserCreate extends User implements IPassword {
     /**
      * Display the Create New User Command Line prompt.
      */
-    void display() {
+    void display(Scanner inputScanner) {
         try {
-            Scanner scanner = new Scanner(System.in);
 
             System.out.println("CREATE NEW USER ACCOUNT");
             System.out.println(" ");
             System.out.print("CPR Number: ");
-            String cpr = scanner.nextLine();
+            String cpr = inputScanner.nextLine();
 
             System.out.println(" ");
             System.out.print("First Name: ");
-            String firstName = scanner.nextLine();
+            String firstName = inputScanner.nextLine();
             System.out.println(" ");
 
             System.out.print("Last Name: ");
-            String lastName = scanner.nextLine();
+            String lastName = inputScanner.nextLine();
             System.out.println(" ");
 
             System.out.print("User Type ([B] banker/ [C] customer): ");
-            userRole = scanner.nextLine();
+            userRole = inputScanner.nextLine();
             switch (userRole.toUpperCase()) {
                 case "B":
                     userRole = "banker";
@@ -68,12 +67,12 @@ public class UserCreate extends User implements IPassword {
                 System.out.println("New user account successfully created.");
             } else {
                 System.out.println("New user account creation failed. Please try again.");
-                display();
+                display(inputScanner);
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.out.println(" ");
-            display();
+            display(inputScanner);
         }
     }
 

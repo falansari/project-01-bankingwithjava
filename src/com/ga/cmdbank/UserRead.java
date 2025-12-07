@@ -105,7 +105,7 @@ public class UserRead extends User implements IPassword {
 
         switch (choice.toLowerCase()) {
             case "c":
-                userCreate.display();
+                userCreate.display(inputScanner);
                 break;
 
             case "b":
