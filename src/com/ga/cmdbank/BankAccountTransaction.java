@@ -31,14 +31,14 @@ public class BankAccountTransaction extends BankAccount {
             String row = accountsData.get(_i);
 
             if (row.startsWith(String.valueOf(bankAccount.bankAccountID))) { // Update account record balance
-                // TODO: limit by type of card
                 String[] rowData = row.split(";");
+                double sum = Double.parseDouble(rowData[5]) + amount;
                 String newRowData = rowData[0] + ";"
                         + rowData[1] + ";"
                         + rowData[2] + ";"
                         + rowData[3] + ";"
                         + rowData[4] + ";"
-                        + amount;
+                        + sum;
 
                 accountsData.set(_i, newRowData);
                 Files.write(filepath, accountsData);
@@ -77,6 +77,30 @@ public class BankAccountTransaction extends BankAccount {
         double amount = Double.parseDouble(inputScanner.nextLine().strip());
 
         try {
+            // Check deposit amount does not exceed their card's limit
+            switch (account.cardType) {
+                case "DebitMastercard":
+                    DebitMastercard debitMastercard = new DebitMastercard(account.debitCardId);
+                    if (amount > debitMastercard.depositLimitDaily)
+                        throw new IOException("You cannot deposit more than your card's daily limit of $" + debitMastercard.depositLimitDaily);
+                    break;
+
+                case "DebitMastercardTitanium":
+                    DebitMastercardTitanium debitMastercardTitanium = new DebitMastercardTitanium(account.debitCardId);
+                    if (amount > debitMastercardTitanium.depositLimitDaily)
+                        throw new IOException("You cannot deposit more than your card's daily limit of $" + debitMastercardTitanium.depositLimitDaily);
+                    break;
+
+                case "DebitMastercardPlatinum":
+                    DebitMastercardPlatinum debitMastercardPlatinum = new DebitMastercardPlatinum(account.debitCardId);
+                    if (amount > debitMastercardPlatinum.depositLimitDaily)
+                        throw new IOException("You cannot deposit more than your card's daily limit of $" + debitMastercardPlatinum.depositLimitDaily);
+                    break;
+            }
+
+            // TODO: Add transaction in transaction history
+            // TODO: Deposit amount limit should add up all transactions done on the same day for this account
+
             if (deposit(account, amount)) {
                 System.out.println("Amount of $" + amount + " successfully deposited.");
                 System.out.println(" ");
