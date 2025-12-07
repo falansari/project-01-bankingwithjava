@@ -101,10 +101,11 @@ public class UserRead extends User implements IPassword {
 
         BankAccount bankAccount = new BankAccount();
         BankAccountTransaction transaction = new BankAccountTransaction();
+        UserCreate userCreate = new UserCreate();
 
         switch (choice.toLowerCase()) {
             case "c":
-                System.out.println("create new customer account");
+                userCreate.display();
                 break;
 
             case "b":
