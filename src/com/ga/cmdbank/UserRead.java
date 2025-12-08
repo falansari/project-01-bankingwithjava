@@ -52,28 +52,26 @@ public class UserRead extends User implements IPassword {
 
         if (!IPassword.verifyPassword(password, userStoredHash, userStoredSalt)) throw new IOException("Password does not match.");
 
-        return new UserRead(userData[0], userData[1], userData[2], userData[3]);
+        return new UserRead(userData[0], userData[1], userData[2], userData[3], userStoredHash, userStoredSalt);
     }
 
     /**
      * Display user login prompt.
      */
-    UserRead display() {
-        Scanner scanner = new Scanner(System.in);
+    UserRead display(Scanner inputScanner) {
 
         try {
             System.out.println("Welcome to CMD-BANK");
             System.out.println("Please Login to your user account:");
             System.out.print("CPR Number: ");
-            String cprInput = scanner.nextLine();
+            String cprInput = inputScanner.nextLine();
             System.out.print("Password: ");
-            String passwordInput = scanner.nextLine();
+            String passwordInput = inputScanner.nextLine();
 
             return login(convertCPRInput(cprInput), passwordInput);
         } catch (Exception e) {
             System.err.println(e.getMessage());
-            System.out.println(" ");
-            display();
+            display(inputScanner);
         }
 
         return null;
@@ -95,16 +93,18 @@ public class UserRead extends User implements IPassword {
         System.out.println("(D) Deposit into bank account");
         System.out.println("(W) Withdraw from bank account");
         System.out.println("(T) Transfer from bank account");
+        System.out.println("(R) Reset Password for User Account");
         System.out.println("(E) Exit System");
         System.out.print("Choice (Type the letter associated with the option): ");
         String choice = inputScanner.nextLine().strip();
 
         BankAccount bankAccount = new BankAccount();
         BankAccountTransaction transaction = new BankAccountTransaction();
+        UserCreate userCreate = new UserCreate();
 
         switch (choice.toLowerCase()) {
             case "c":
-                System.out.println("create new customer account");
+                userCreate.display(inputScanner);
                 break;
 
             case "b":
@@ -141,12 +141,16 @@ public class UserRead extends User implements IPassword {
                 transaction.displayTransfer(inputScanner, userRead);
                 break;
 
+            case "r":
+                userCreate.displayResetPassword(inputScanner, userRead);
+                break;
+
             case "e":
                 System.out.println("Thank you for coming today! Goodbye.");
                 break;
 
             default:
-                System.out.println("Please type in the letter corresponding to 1 of the choices only.");
+                System.err.println("Please type in the letter corresponding to 1 of the choices only.");
                 displayMainMenuBanker(userRead, inputScanner);
                 break;
         }
@@ -164,12 +168,14 @@ public class UserRead extends User implements IPassword {
         System.out.println("(W) Withdraw Money");
         System.out.println("(D) Deposit Money");
         System.out.println("(T) Transfer Money");
+        System.out.println("(R) Reset Password (Recommended after first login)");
         System.out.println("(E) Exit System");
         System.out.print("Choice (Type the letter associated with the option): ");
         String choice = inputScanner.nextLine();
 
         BankAccount bankAccount = new BankAccount();
         BankAccountTransaction transaction = new BankAccountTransaction();
+        UserCreate userCreate = new UserCreate();
 
         switch (choice.toLowerCase()) {
             case "v":
@@ -188,12 +194,16 @@ public class UserRead extends User implements IPassword {
                 transaction.displayTransfer(inputScanner, userRead);
                 break;
 
+            case "r":
+                userCreate.displayResetPassword(inputScanner, userRead);
+                break;
+
             case "e":
                 System.out.println("Thank you for coming today! Goodbye.");
                 break;
 
             default:
-                System.out.println("Please type in the letter corresponding to 1 of the choices only.");
+                System.err.println("Please type in the letter corresponding to 1 of the choices only.");
                 displayMainMenuCustomer(userRead, inputScanner);
                 break;
         }

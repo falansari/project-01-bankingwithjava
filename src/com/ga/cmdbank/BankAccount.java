@@ -272,7 +272,6 @@ public class BankAccount {
         }
     }
 
-    // TODO: Add current balance
     // TODO: Add buttons for moving to view transaction history of either account
     // TODO: Add if it's over withdrawn and penalties if any
     /**
