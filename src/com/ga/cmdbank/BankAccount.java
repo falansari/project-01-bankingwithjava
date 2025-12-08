@@ -213,6 +213,18 @@ public class BankAccount {
     }
 
     /**
+     * Check if a user exists based on CPR number. Returns true if it exists, otherwise false.
+     * @param bankAccountID int bank account number
+     * @return boolean True if the bank account was found, otherwise false.
+     * @throws IOException IOException
+     */
+    boolean exists(int bankAccountID) throws IOException {
+        BankAccount bankAccount = getAccount(bankAccountID);
+
+        return bankAccount != null;
+    }
+
+    /**
      * Display the Create New User Command Line prompt.
      */
     void displayCreateAccount(Scanner inputScanner) {

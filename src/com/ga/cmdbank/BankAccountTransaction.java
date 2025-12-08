@@ -2,6 +2,8 @@ package com.ga.cmdbank;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -15,6 +17,8 @@ public class BankAccountTransaction extends BankAccount {
      */
     boolean deposit(BankAccount bankAccount, double amount) throws IOException {
         List<String> accountsData = Files.readAllLines(filepath);
+
+        bankAccount.balance += amount;
 
         for (int _i = 0; _i < accountsData.size(); _i++) {
             String row = accountsData.get(_i);
@@ -64,37 +68,39 @@ public class BankAccountTransaction extends BankAccount {
             System.out.print("Deposit Amount (USD): ");
             double amount = Double.parseDouble(inputScanner.nextLine().strip());
 
+            TransactionHistory transactionHistory = new TransactionHistory();
+            double transactionAmountToday = transactionHistory.sumOfTransactionAmountOnDateByType(accountId, "deposit", LocalDateTime.now().toLocalDate());
+            double theoreticalTransactionAmount = transactionAmountToday + amount;
+
             // Check deposit amount does not exceed their card's limit
             switch (account.cardType) {
                 case "DebitMastercard":
                     DebitMastercard debitMastercard = new DebitMastercard(account.debitCardId);
-                    if (amount > debitMastercard.depositLimitDaily)
-                        throw new IOException("You cannot deposit more than your card's daily limit of $" + debitMastercard.depositLimitDaily);
+                    if (theoreticalTransactionAmount > debitMastercard.depositLimitDaily)
+                        throw new IOException("You cannot deposit more than your card's daily limit of $" + debitMastercard.depositLimitDaily + ". Current total withdrawals for today is $"+ transactionAmountToday);
                     break;
 
                 case "DebitMastercardTitanium":
                     DebitMastercardTitanium debitMastercardTitanium = new DebitMastercardTitanium(account.debitCardId);
-                    if (amount > debitMastercardTitanium.depositLimitDaily)
-                        throw new IOException("You cannot deposit more than your card's daily limit of $" + debitMastercardTitanium.depositLimitDaily);
+                    if (theoreticalTransactionAmount > debitMastercardTitanium.depositLimitDaily)
+                        throw new IOException("You cannot deposit more than your card's daily limit of $" + debitMastercardTitanium.depositLimitDaily + ". Current total withdrawals for today is $"+ transactionAmountToday);
                     break;
 
                 case "DebitMastercardPlatinum":
                     DebitMastercardPlatinum debitMastercardPlatinum = new DebitMastercardPlatinum(account.debitCardId);
-                    if (amount > debitMastercardPlatinum.depositLimitDaily)
-                        throw new IOException("You cannot deposit more than your card's daily limit of $" + debitMastercardPlatinum.depositLimitDaily);
+                    if (theoreticalTransactionAmount > debitMastercardPlatinum.depositLimitDaily)
+                        throw new IOException("You cannot deposit more than your card's daily limit of $" + debitMastercardPlatinum.depositLimitDaily + ". Current total withdrawals for today is $"+ transactionAmountToday);
                     break;
             }
 
-            // TODO: Deposit amount limit should add up all transactions done on the same day for this account
-
             if (deposit(account, amount)) {
                 // Add transaction in a transaction history file
-                TransactionHistory transactionHistory = new TransactionHistory(user.cpr, account.bankAccountID, "deposit", amount);
-                transactionHistory.recordTransaction();
+                TransactionHistory record = new TransactionHistory(user.cpr, account.bankAccountID, "deposit", amount);
+                record.recordTransaction();
 
                 System.out.println("Amount of $" + amount + " successfully deposited.");
                 System.out.println(" ");
-                System.out.println("New Account Balance: $" + (account.balance + amount));
+                System.out.println("New Account Balance: $" + account.balance);
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -111,6 +117,10 @@ public class BankAccountTransaction extends BankAccount {
      */
     boolean withdraw(BankAccount bankAccount, double amount) throws IOException {
         List<String> accountsData = Files.readAllLines(filepath);
+
+        // Check amount does not exceed balance
+        if (bankAccount.balance < amount) throw new IOException("Withdraw amount cannot exceed balance.");
+        bankAccount.balance -= amount;
 
         for (int _i = 0; _i < accountsData.size(); _i++) {
             String row = accountsData.get(_i);
@@ -161,40 +171,43 @@ public class BankAccountTransaction extends BankAccount {
             System.out.print("Withdraw Amount (USD): ");
             double amount = Double.parseDouble(inputScanner.nextLine().strip());
 
+            TransactionHistory transactionHistory = new TransactionHistory();
+            double transactionAmountToday = transactionHistory.sumOfTransactionAmountOnDateByType(accountId, "withdraw", LocalDateTime.now().toLocalDate());
+            double theoreticalTransactionAmount = transactionAmountToday + amount;
+
             // Check withdraw amount does not exceed their card's limit
             switch (account.cardType) {
                 case "DebitMastercard":
                     DebitMastercard debitMastercard = new DebitMastercard(account.debitCardId);
-                    if (amount > debitMastercard.withdrawLimitDaily)
-                        throw new IOException("You cannot withdraw more than your card's daily limit of $" + debitMastercard.withdrawLimitDaily);
+                    if (theoreticalTransactionAmount > debitMastercard.withdrawLimitDaily)
+                        throw new IOException("You cannot withdraw more than your card's daily limit of $" + debitMastercard.withdrawLimitDaily + ". Current total withdrawals for today is $"+ transactionAmountToday);
                     break;
 
                 case "DebitMastercardTitanium":
                     DebitMastercardTitanium debitMastercardTitanium = new DebitMastercardTitanium(account.debitCardId);
-                    if (amount > debitMastercardTitanium.withdrawLimitDaily)
-                        throw new IOException("You cannot withdraw more than your card's daily limit of $" + debitMastercardTitanium.withdrawLimitDaily);
+                    if (theoreticalTransactionAmount > debitMastercardTitanium.withdrawLimitDaily)
+                        throw new IOException("You cannot withdraw more than your card's daily limit of $" + debitMastercardTitanium.withdrawLimitDaily + ". Current total withdrawals for today is $"+ transactionAmountToday);
                     break;
 
                 case "DebitMastercardPlatinum":
                     DebitMastercardPlatinum debitMastercardPlatinum = new DebitMastercardPlatinum(account.debitCardId);
-                    if (amount > debitMastercardPlatinum.withdrawLimitDaily)
-                        throw new IOException("You cannot withdraw more than your card's daily limit of $" + debitMastercardPlatinum.withdrawLimitDaily);
+                    if (theoreticalTransactionAmount > debitMastercardPlatinum.withdrawLimitDaily)
+                        throw new IOException("You cannot withdraw more than your card's daily limit of $" + debitMastercardPlatinum.withdrawLimitDaily + ". Current total withdrawals for today is $"+ transactionAmountToday);
                     break;
             }
 
             // Check withdraw amount does not exceed their account's balance
             // TODO: Change it into overdraw warning and support with penalty for overdraft system
-            // TODO: Withdraw amount limit should add up all transactions done on the same day for this account
-            if (account.balance < amount) throw new IOException("Your account balance is not enough to withdraw $" + amount);
+            if (account.balance < amount) throw new IOException("Your account balance is not enough to withdraw $" + amount + ". Current total withdrawals for today is $" + transactionAmountToday);
 
             if (withdraw(account, amount)) {
                 // Add transaction in a transaction history file
-                TransactionHistory transactionHistory = new TransactionHistory(user.cpr, account.bankAccountID, "withdraw", amount);
-                transactionHistory.recordTransaction();
+                TransactionHistory record = new TransactionHistory(user.cpr, account.bankAccountID, "withdraw", amount);
+                record.recordTransaction();
 
                 System.out.println("Amount of $" + amount + " successfully withdrawn.");
                 System.out.println(" ");
-                System.out.println("New Account Balance: $" + (account.balance - amount));
+                System.out.println("New Account Balance: $" + account.balance);
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -286,7 +299,6 @@ public class BankAccountTransaction extends BankAccount {
             System.out.println(" ");
 
             // Check transfer amount does not exceed their account's balance
-            // TODO: Transfer amount limit should add up all transactions done on the same day for this account
             if (account.balance < amount) throw new IOException("Your account balance is not enough to transfer $" + amount);
 
             System.out.print("Transfer to Account ID: ");
@@ -298,26 +310,29 @@ public class BankAccountTransaction extends BankAccount {
 
             // Check if transfer account belongs to the user or someone else
             boolean isOwnAccount = account.userCPR == transferAccount.userCPR;
+            TransactionHistory transactionHistory = new TransactionHistory();
+            double transactionAmountToday = transactionHistory.sumOfTransactionAmountOnDateByType(accountId, "transfer", LocalDateTime.now().toLocalDate(), isOwnAccount);
+            double theoreticalTransactionAmount = transactionAmountToday + amount;
 
             if (isOwnAccount) {
                 // Check transfer amount does not exceed their card's limit
                 switch (account.cardType) {
                     case "DebitMastercard":
                         DebitMastercard debitMastercard = new DebitMastercard(account.debitCardId);
-                        if (amount > debitMastercard.transferLimitOwnAccountDaily)
-                            throw new IOException("You cannot transfer more than your card's daily limit of $" + debitMastercard.transferLimitOwnAccountDaily);
+                        if (theoreticalTransactionAmount > debitMastercard.transferLimitOwnAccountDaily)
+                            throw new IOException("You cannot transfer more than your card's daily limit of $" + debitMastercard.transferLimitOwnAccountDaily + ". Your current total transfers for today is $" + transactionAmountToday);
                         break;
 
                     case "DebitMastercardTitanium":
                         DebitMastercardTitanium debitMastercardTitanium = new DebitMastercardTitanium(account.debitCardId);
-                        if (amount > debitMastercardTitanium.transferLimitOwnAccountDaily)
-                            throw new IOException("You cannot transfer more than your card's daily limit of $" + debitMastercardTitanium.transferLimitOwnAccountDaily);
+                        if (theoreticalTransactionAmount > debitMastercardTitanium.transferLimitOwnAccountDaily)
+                            throw new IOException("You cannot transfer more than your card's daily limit of $" + debitMastercardTitanium.transferLimitOwnAccountDaily + ". Your current total transfers for today is $" + transactionAmountToday);
                         break;
 
                     case "DebitMastercardPlatinum":
                         DebitMastercardPlatinum debitMastercardPlatinum = new DebitMastercardPlatinum(account.debitCardId);
-                        if (amount > debitMastercardPlatinum.transferLimitOwnAccountDaily)
-                            throw new IOException("You cannot transfer more than your card's daily limit of $" + debitMastercardPlatinum.transferLimitOwnAccountDaily);
+                        if (theoreticalTransactionAmount > debitMastercardPlatinum.transferLimitOwnAccountDaily)
+                            throw new IOException("You cannot transfer more than your card's daily limit of $" + debitMastercardPlatinum.transferLimitOwnAccountDaily + ". Your current total transfers for today is $" + transactionAmountToday);
                         break;
                 }
             } else {
@@ -325,35 +340,35 @@ public class BankAccountTransaction extends BankAccount {
                 switch (account.cardType) {
                     case "DebitMastercard":
                         DebitMastercard debitMastercard = new DebitMastercard(account.debitCardId);
-                        if (amount > debitMastercard.transferLimitOtherAccountDaily)
-                            throw new IOException("You cannot transfer more than your card's daily limit of $" + debitMastercard.transferLimitOtherAccountDaily);
+                        if (theoreticalTransactionAmount > debitMastercard.transferLimitOtherAccountDaily)
+                            throw new IOException("You cannot transfer more than your card's daily limit of $" + debitMastercard.transferLimitOtherAccountDaily + ". Your current total transfers for today is $" + transactionAmountToday);
                         break;
 
                     case "DebitMastercardTitanium":
                         DebitMastercardTitanium debitMastercardTitanium = new DebitMastercardTitanium(account.debitCardId);
-                        if (amount > debitMastercardTitanium.transferLimitOtherAccountDaily)
-                            throw new IOException("You cannot transfer more than your card's daily limit of $" + debitMastercardTitanium.transferLimitOtherAccountDaily);
+                        if (theoreticalTransactionAmount > debitMastercardTitanium.transferLimitOtherAccountDaily)
+                            throw new IOException("You cannot transfer more than your card's daily limit of $" + debitMastercardTitanium.transferLimitOtherAccountDaily + ". Your current total transfers for today is $" + transactionAmountToday);
                         break;
 
                     case "DebitMastercardPlatinum":
                         DebitMastercardPlatinum debitMastercardPlatinum = new DebitMastercardPlatinum(account.debitCardId);
-                        if (amount > debitMastercardPlatinum.transferLimitOtherAccountDaily)
-                            throw new IOException("You cannot transfer more than your card's daily limit of $" + debitMastercardPlatinum.transferLimitOtherAccountDaily);
+                        if (theoreticalTransactionAmount > debitMastercardPlatinum.transferLimitOtherAccountDaily)
+                            throw new IOException("You cannot transfer more than your card's daily limit of $" + debitMastercardPlatinum.transferLimitOtherAccountDaily + ". Your current total transfers for today is $" + transactionAmountToday);
                         break;
                 }
             }
 
             if (transfer(account, transferAccount, amount)) {
                 // Add transaction in a transaction history file
-                TransactionHistory transactionHistory = new TransactionHistory(user.cpr, account.bankAccountID, "transfer", amount, transferAccount.bankAccountID);
-                transactionHistory.recordTransaction();
+                TransactionHistory record = new TransactionHistory(user.cpr, account.bankAccountID, "transfer", amount, transferAccount.bankAccountID, isOwnAccount);
+                record.recordTransaction();
 
                 System.out.println("Amount of $" + amount + " successfully transferred.");
                 System.out.println(" ");
-                System.out.println("New Account Balance: $" + (account.balance - amount));
+                System.out.println("New Account Balance: $" + account.balance);
             }
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println(e.getMessage() + " TRACE: " + Arrays.toString(e.getStackTrace()));
             displayTransfer(inputScanner, user);
         }
     }
