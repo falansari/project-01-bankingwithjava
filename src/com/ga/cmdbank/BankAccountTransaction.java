@@ -97,7 +97,7 @@ public class BankAccountTransaction extends BankAccount {
                 System.out.println("New Account Balance: $" + (account.balance + amount));
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
             displayDeposit(inputScanner, user);
         }
     }
@@ -197,7 +197,7 @@ public class BankAccountTransaction extends BankAccount {
                 System.out.println("New Account Balance: $" + (account.balance - amount));
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
             displayWithdraw(inputScanner, user);
         }
     }
@@ -353,7 +353,7 @@ public class BankAccountTransaction extends BankAccount {
                 System.out.println("New Account Balance: $" + (account.balance - amount));
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
             displayTransfer(inputScanner, user);
         }
     }
