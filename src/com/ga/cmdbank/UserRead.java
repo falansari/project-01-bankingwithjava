@@ -1,5 +1,6 @@
 package com.ga.cmdbank;
 
+import javax.security.auth.login.FailedLoginException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -58,23 +59,28 @@ public class UserRead extends User implements IPassword {
     /**
      * Display user login prompt.
      */
-    UserRead display(Scanner inputScanner) {
-
+    void display(Scanner inputScanner) throws FailedLoginException {
         try {
             System.out.println("Welcome to CMD-BANK");
             System.out.println("Please Login to your user account:");
             System.out.print("CPR Number: ");
-            String cprInput = inputScanner.nextLine();
+            String cprInput = inputScanner.nextLine().strip();
             System.out.print("Password: ");
-            String passwordInput = inputScanner.nextLine();
+            String passwordInput = inputScanner.nextLine().strip();
 
-            return login(convertCPRInput(cprInput), passwordInput);
+            UserRead userRead = login(convertCPRInput(cprInput), passwordInput);
+
+            switch (userRead.getUserRole()) {
+                case "customer":
+                    userRead.displayMainMenuCustomer(userRead, inputScanner);
+                    break;
+                case "banker":
+                    userRead.displayMainMenuBanker(userRead, inputScanner);
+                    break;
+            }
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            display(inputScanner);
+            throw new FailedLoginException("Login attempt failed");
         }
-
-        return null;
     }
 
     /**

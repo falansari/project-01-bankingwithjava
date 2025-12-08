@@ -1,26 +1,19 @@
 package com.ga.cmdbank;
 
-import java.io.IOException;
+import javax.security.auth.login.FailedLoginException;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws FailedLoginException {
         Scanner inputScanner = new Scanner(System.in); // Universal app scanner
+        UserRead userRead = new UserRead();
 
         try {
-            UserRead userRead = new UserRead().display(inputScanner);
+            userRead.display(inputScanner);
 
-            switch (userRead.getUserRole()) {
-                case "customer":
-                    userRead.displayMainMenuCustomer(userRead, inputScanner);
-                    break;
-                case "banker":
-                    userRead.displayMainMenuBanker(userRead, inputScanner);
-                    break;
-            }
         } catch (Exception e) {
             System.err.println(e.getMessage());
+            userRead.display(inputScanner);
         }
-
     }
 }

@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -137,16 +136,7 @@ public class UserCreate extends User implements IPassword {
 
             System.out.println("Password successfully reset. Please login again.");
 
-            userRead = new UserRead().display(inputScanner);
-
-            switch (userRead.getUserRole()) {
-                case "customer":
-                    userRead.displayMainMenuCustomer(userRead, inputScanner);
-                    break;
-                case "banker":
-                    userRead.displayMainMenuBanker(userRead, inputScanner);
-                    break;
-            }
+            userRead.display(inputScanner);
 
         } catch (Exception e) {
             System.err.println(e.getMessage());
