@@ -5,6 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -32,26 +34,25 @@ public class UserCreate extends User implements IPassword {
     /**
      * Display the Create New User Command Line prompt.
      */
-    void display() {
+    void display(Scanner inputScanner) {
         try {
-            Scanner scanner = new Scanner(System.in);
 
             System.out.println("CREATE NEW USER ACCOUNT");
             System.out.println(" ");
             System.out.print("CPR Number: ");
-            String cpr = scanner.nextLine();
+            String cpr = inputScanner.nextLine();
 
             System.out.println(" ");
             System.out.print("First Name: ");
-            String firstName = scanner.nextLine();
+            String firstName = inputScanner.nextLine();
             System.out.println(" ");
 
             System.out.print("Last Name: ");
-            String lastName = scanner.nextLine();
+            String lastName = inputScanner.nextLine();
             System.out.println(" ");
 
             System.out.print("User Type ([B] banker/ [C] customer): ");
-            userRole = scanner.nextLine();
+            userRole = inputScanner.nextLine();
             switch (userRole.toUpperCase()) {
                 case "B":
                     userRole = "banker";
@@ -67,13 +68,13 @@ public class UserCreate extends User implements IPassword {
             if (save(cpr, firstName, lastName, userRole)) {
                 System.out.println("New user account successfully created.");
             } else {
-                System.out.println("New user account creation failed. Please try again.");
-                display();
+                System.err.println("New user account creation failed. Please try again.");
+                display(inputScanner);
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.out.println(" ");
-            display();
+            display(inputScanner);
         }
     }
 
@@ -110,5 +111,79 @@ public class UserCreate extends User implements IPassword {
 
             return false;
         }
+    }
+
+    void displayResetPassword(Scanner inputScanner, UserRead userRead) {
+        System.out.println("RESET USER ACCOUNT PASSWORD:");
+        System.out.print("Current Password: ");
+        String currentPassword = inputScanner.nextLine().strip();
+
+        try {
+            if (!IPassword.verifyPassword(currentPassword, userRead.hashedPassword, userRead.passwordSalt))
+                throw new IOException("Current password does not match password in database");
+
+            System.out.println(" ");
+            System.out.print("New Password: ");
+            String newPassword = inputScanner.nextLine().strip();
+            System.out.println(" ");
+            System.out.print("Confirm New Password: ");
+            String confirmNewPassword = inputScanner.nextLine().strip();
+            System.out.println(" ");
+
+            if (!newPassword.equals(confirmNewPassword))
+                throw new IOException("New password does not match confirm new password. Please try again.");
+
+            if (!resetPassword(userRead.cpr, newPassword)) throw new RuntimeException("Password reset failed. Please try again.");
+
+            System.out.println("Password successfully reset. Please login again.");
+
+            userRead = new UserRead().display(inputScanner);
+
+            switch (userRead.getUserRole()) {
+                case "customer":
+                    userRead.displayMainMenuCustomer(userRead, inputScanner);
+                    break;
+                case "banker":
+                    userRead.displayMainMenuBanker(userRead, inputScanner);
+                    break;
+            }
+
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            displayResetPassword(inputScanner, userRead);
+        }
+    }
+
+    boolean resetPassword(int userCPR, String newPassword) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        List<String> userAccounts = Files.readAllLines(filePath);
+
+        for (int _i = 0; _i < userAccounts.size(); _i++) {
+            String account = userAccounts.get(_i);
+            String[] accountData = account.split(";");
+            int accountUserId = Integer.parseInt(accountData[0]);
+
+            if (accountUserId == userCPR) {
+                // TODO: generate new password salt
+                byte[] salt = IPassword.generateSalt();
+                String base64Salt = IPassword.base64Salt(salt);
+                // TODO: generate new hashed password
+                String hashedPassword = IPassword.hashPassword(newPassword, salt);
+                // TODO: update user record with new hashed password and salt
+                String valueBreak = ";";
+                String updatedUser = accountData[0] + valueBreak
+                        + accountData[1] + valueBreak
+                        + accountData[2] + valueBreak
+                        + accountData[3] + valueBreak
+                        + hashedPassword + valueBreak
+                        + base64Salt + valueBreak;
+
+                userAccounts.set(_i, updatedUser);
+                Files.write(filePath, userAccounts);
+
+                return true;
+            }
+        }
+
+        return false;
     }
 }
