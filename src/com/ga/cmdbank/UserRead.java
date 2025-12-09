@@ -1,6 +1,5 @@
 package com.ga.cmdbank;
 
-import javax.security.auth.login.FailedLoginException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -14,17 +13,6 @@ public class UserRead extends User implements IPassword {
     private int failedLoginAttemptsCount = 0;
 
     public UserRead() {}
-
-    /**
-     * Read existing user constructor.
-     * @param cprInput String user's CPR number. Unique user identifier and login ID.
-     * @param firstName String user's first name.
-     * @param lastName String user's last name.
-     * @param userRole String user's role, 1 of 2 options: [banker, customer].
-     */
-    public UserRead(String cprInput, String firstName, String lastName, String userRole) {
-        super(cprInput, firstName, lastName, userRole);
-    }
 
     /**
      * Read existing constructor.
@@ -60,7 +48,7 @@ public class UserRead extends User implements IPassword {
     /**
      * Display user login prompt.
      */
-    void display(Scanner inputScanner) throws InterruptedException {
+    void displayLogin(Scanner inputScanner) throws InterruptedException {
         try {
             System.out.println("Welcome to CMD-BANK");
             System.out.println("Please Login to your user account:");
@@ -89,11 +77,11 @@ public class UserRead extends User implements IPassword {
                 System.err.println("You have reached failed login attempts limit. Please wait 1 minute before trying again.");
                 Thread.sleep(60000);
                 failedLoginAttemptsCount = 0;
-                display(inputScanner);
+                displayLogin(inputScanner);
 
             } else {
                 System.err.println(e.getMessage() + "\nFailed attempts: " + failedLoginAttemptsCount + "/3");
-                display(inputScanner);
+                displayLogin(inputScanner);
             }
         }
     }
