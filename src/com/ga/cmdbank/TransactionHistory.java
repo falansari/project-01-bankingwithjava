@@ -157,8 +157,8 @@ public class TransactionHistory {
         for (String transaction : accountTransactionHistory) {
             String[] transactionData = transaction.split(";");
             String transactionDate = transactionData[2];
-            LocalDateTime localDateTime = LocalDateTime.parse(transactionDate);
-            LocalDate localDate = localDateTime.toLocalDate();
+            LocalDateTime localDateTime = new UtilityComponent().convertStringToDateTime(transactionDate);
+            LocalDate localDate = new UtilityComponent().getDateFromDatetime(localDateTime);
 
             if (!Objects.equals(localDate, date)) continue;
 

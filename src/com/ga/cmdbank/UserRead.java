@@ -99,6 +99,7 @@ public class UserRead extends User implements IPassword {
         System.out.println("(B) Create new customer bank account");
         System.out.println("(V) View customer's account data");
         System.out.println("(A) View my own bank accounts");
+        System.out.println("(S) View Account Statement");
         System.out.println("(D) Deposit into bank account");
         System.out.println("(W) Withdraw from bank account");
         System.out.println("(T) Transfer from bank account");
@@ -139,6 +140,10 @@ public class UserRead extends User implements IPassword {
                 bankAccount.displayAccountsList(inputScanner, userRead);
                 break;
 
+            case "s":
+                bankAccount.displayAccountStatement(inputScanner, userRead);
+                break;
+
             case "d":
                 transaction.displayDeposit(inputScanner, userRead);
                 break;
@@ -176,6 +181,7 @@ public class UserRead extends User implements IPassword {
         System.out.println("Welcome, " + userRead.getFirstName() + " " + userRead.getLastName());
         System.out.println("What would you like to do today?");
         System.out.println("(V) View Bank Account Details");
+        System.out.println("(S) View Account Statement");
         System.out.println("(W) Withdraw Money");
         System.out.println("(D) Deposit Money");
         System.out.println("(T) Transfer Money");
@@ -192,6 +198,10 @@ public class UserRead extends User implements IPassword {
         switch (choice.toLowerCase()) {
             case "v":
                 bankAccount.displayAccountsList(inputScanner, userRead);
+                break;
+
+            case "s":
+                bankAccount.displayAccountStatement(inputScanner, userRead);
                 break;
 
             case "w":

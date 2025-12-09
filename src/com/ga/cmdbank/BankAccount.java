@@ -5,8 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 /**
@@ -316,6 +318,79 @@ public class BankAccount {
             System.out.println("Account Balance: $" + value[5]);
             System.out.println(" ");
         });
+
+        user.backToMainMenu(scanner, user);
+    }
+
+    /**
+     * View customer's list of bank accounts and their details.
+     * @param scanner Scanner System.in input scanner
+     * @param user Object   UserRead object, must possess all the details (cpr, firstName, lastName
+     * @throws IOException Exception handling
+     */
+    void displayAccountStatement(Scanner scanner, UserRead user) throws IOException {
+        final UtilityComponent utilityComponent = new UtilityComponent();
+        System.out.println("BANK ACCOUNT STATEMENT:");
+        System.out.print("Account ID: ");
+        int inputAccountId = Integer.parseInt(scanner.nextLine().strip());
+
+        BankAccount account = getAccount(inputAccountId);
+
+        if (!Objects.equals(user.userRole, "banker") && account.userCPR != user.cpr) throw new IOException("You are not authorized to view this account");
+
+        System.out.println(" ");
+        System.out.println(account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " STATEMENT:");
+        HashMap<Integer, String[]> accountTransactions = new HashMap<>();
+
+        // TODO: get account transaction history and iterate through it to print
+        List<String> accountCompleteHistory = new TransactionHistory().getAccountTransactionHistory(inputAccountId, "all");
+
+        for (int _i = 0; _i < accountCompleteHistory.size(); _i++) { // Find and store user's accounts
+            String record = accountCompleteHistory.get(_i);
+            String[] recordData = record.split(";");
+
+            accountTransactions.put(_i, recordData);
+        }
+
+        System.out.println("ISSUE DATE: " + utilityComponent.getTodayDate());
+        System.out.println(" ");
+        System.out.println("   DATE   |           DESCRIPTION           |    AMOUNT   |   BALANCE   ");
+
+        double[] totalWithdrawals = {0.0};
+        double[] totalDeposits = {0.0};
+
+        accountTransactions.forEach((key, value) -> {
+            LocalDate date = utilityComponent.getDateFromDatetime(value[2]);
+            String transactionType = value[3];
+            String description = "";
+            String transferToAccount = value[5];
+            String amount = value[4];
+            String balance = value[7];
+
+            switch (transactionType) {
+                case "withdraw":
+                    totalWithdrawals[0] += Double.parseDouble(amount);
+                    description = "ATM Withdrawal";
+                    break;
+                case "deposit":
+                    totalDeposits[0] += Double.parseDouble(amount);
+                    description = "ATM Deposit";
+                    break;
+                case "transfer":
+                    totalWithdrawals[0] += Double.parseDouble(amount);
+                    description = "Transfer to account No." + transferToAccount;
+                    break;
+            }
+
+            System.out.println(utilityComponent.padString(date.toString(), 10)
+                    + "|" + utilityComponent.padString(description, 33)
+                    + "|" + utilityComponent.padString("$"+amount, 13)
+                    + "|" + utilityComponent.padString("$"+balance, 13));
+        });
+
+        System.out.println(" ");
+        System.out.println("TOTAL WITHDRAWALS: $" + totalWithdrawals[0]);
+        System.out.println("TOTAL DEPOSITS: $" + totalDeposits[0]);
 
         user.backToMainMenu(scanner, user);
     }
