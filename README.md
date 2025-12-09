@@ -35,6 +35,7 @@ https://github.com/users/falansari/projects/11/views/1
   - Password hashing
   - User authentication
   - Password reset
+  - Login Fraud Detection: If there are 3 failed login attempts lock the account for 1 min, before trying again with the login information.
 - **Bank Account System:**
   - Debit card support for mastercard, mastercard titanium, and mastercard platinum.
   - Bank account creation (for registered users only) with an attached debit card.
@@ -47,15 +48,11 @@ https://github.com/users/falansari/projects/11/views/1
   - Transaction history records
 
 ## UNRESOLVED ISSUES
-- **BUG**: user is null error upon 2nd attempt to login after a failed login, thus login cannot happen except on first attempt being successful.
-- **Login Fraud Detection** If there are 3 failed login attempts so design a mechanism to lock the account for 1 min, before trying again with the login information.
 - **Filtering transactions** User can query the program and get transactions with certain conditions (e.g. today, yesterday, last week, last 7 days, last month, last 30 days and filtering on the basics of date and time).
 - **Overdraft Protection (requires login)**
   - Charge an ACME overdraft protection fee of $35 when overdrafting. 
   - Prevent withdrawing more than $100 if the account balance is negative.
   - Deactivate the account after 2 overdrafts; reactivate if the customer resolves the negative balance and pays the overdraft fees.
-
-
 
 ## IDEAS FOR IMPROVEMENTS
 - Implement ability to do as many operations as the user wants before deciding when to exit the system.

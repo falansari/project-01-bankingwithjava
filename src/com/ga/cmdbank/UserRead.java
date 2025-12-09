@@ -11,6 +11,7 @@ import java.util.Scanner;
  * Read user data, including login.
  */
 public class UserRead extends User implements IPassword {
+    private int failedLoginAttemptsCount = 0;
 
     public UserRead() {}
 
@@ -59,7 +60,7 @@ public class UserRead extends User implements IPassword {
     /**
      * Display user login prompt.
      */
-    void display(Scanner inputScanner) throws FailedLoginException {
+    void display(Scanner inputScanner) throws InterruptedException {
         try {
             System.out.println("Welcome to CMD-BANK");
             System.out.println("Please Login to your user account:");
@@ -69,17 +70,31 @@ public class UserRead extends User implements IPassword {
             String passwordInput = inputScanner.nextLine().strip();
 
             UserRead userRead = login(convertCPRInput(cprInput), passwordInput);
+            failedLoginAttemptsCount = 0;
 
             switch (userRead.getUserRole()) {
                 case "customer":
                     userRead.displayMainMenuCustomer(userRead, inputScanner);
                     break;
+
                 case "banker":
                     userRead.displayMainMenuBanker(userRead, inputScanner);
                     break;
+
             }
         } catch (Exception e) {
-            throw new FailedLoginException("Login attempt failed");
+            failedLoginAttemptsCount++;
+
+            if (failedLoginAttemptsCount == 3) {
+                System.err.println("You have reached failed login attempts limit. Please wait 1 minute before trying again.");
+                Thread.sleep(60000);
+                failedLoginAttemptsCount = 0;
+                display(inputScanner);
+
+            } else {
+                System.err.println(e.getMessage() + "\nFailed attempts: " + failedLoginAttemptsCount + "/3");
+                display(inputScanner);
+            }
         }
     }
 
