@@ -20,17 +20,19 @@ public class TransactionHistory {
     double transactionAmount;
     int transferToAccountId; // Optional field: only for transfer from other account transactions
     boolean isOwnAccountTransfer; // Optional field: only for transfer transactions
+    double postTransactionBalance;
     final Path filePath = Paths.get("data/transaction_history.txt");
 
-    public TransactionHistory(int userId, int accountId, String transactionType, double transactionAmount) {
+    public TransactionHistory(int userId, int accountId, String transactionType, double transactionAmount, double postTransactionBalance) {
         this.userId = userId;
         this.accountId = accountId;
         this.dateTime = LocalDateTime.now();
         this.transactionType = transactionType;
         this.transactionAmount = transactionAmount;
+        this.postTransactionBalance = postTransactionBalance;
     }
 
-    public TransactionHistory(int userId, int accountId, String transactionType, double transactionAmount, int transferToAccountId, boolean isOwnAccountTransfer) {
+    public TransactionHistory(int userId, int accountId, String transactionType, double transactionAmount, int transferToAccountId, boolean isOwnAccountTransfer, double postTransactionBalance) {
         this.userId = userId;
         this.accountId = accountId;
         this.dateTime = LocalDateTime.now();
@@ -38,6 +40,7 @@ public class TransactionHistory {
         this.transactionAmount = transactionAmount;
         this.transferToAccountId = transferToAccountId;
         this.isOwnAccountTransfer = isOwnAccountTransfer;
+        this.postTransactionBalance = postTransactionBalance;
     }
 
     public TransactionHistory() {}
@@ -55,7 +58,8 @@ public class TransactionHistory {
                 + transactionType + elementBreak
                 + transactionAmount + elementBreak
                 + transferToAccountId + elementBreak
-                + isOwnAccountTransfer;
+                + isOwnAccountTransfer + elementBreak
+                + postTransactionBalance;
 
         try {
             Files.writeString(filePath, record + System.lineSeparator(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
