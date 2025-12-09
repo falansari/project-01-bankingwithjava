@@ -101,6 +101,8 @@ public class BankAccountTransaction extends BankAccount {
                 System.out.println("Amount of $" + amount + " successfully deposited.");
                 System.out.println(" ");
                 System.out.println("New Account Balance: $" + account.balance);
+
+                user.backToMainMenu(inputScanner, user);
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -208,6 +210,8 @@ public class BankAccountTransaction extends BankAccount {
                 System.out.println("Amount of $" + amount + " successfully withdrawn.");
                 System.out.println(" ");
                 System.out.println("New Account Balance: $" + account.balance);
+
+                user.backToMainMenu(inputScanner, user);
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -366,6 +370,8 @@ public class BankAccountTransaction extends BankAccount {
                 System.out.println("Amount of $" + amount + " successfully transferred.");
                 System.out.println(" ");
                 System.out.println("New Account Balance: $" + account.balance);
+
+                user.backToMainMenu(inputScanner, user);
             }
         } catch (Exception e) {
             System.err.println(e.getMessage() + " TRACE: " + Arrays.toString(e.getStackTrace()));

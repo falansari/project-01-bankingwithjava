@@ -118,6 +118,7 @@ public class UserRead extends User implements IPassword {
         System.out.println("(E) Exit System");
         System.out.print("Choice (Type the letter associated with the option): ");
         String choice = inputScanner.nextLine().strip();
+        System.out.println(" ");
 
         BankAccount bankAccount = new BankAccount();
         BankAccountTransaction transaction = new BankAccountTransaction();
@@ -183,6 +184,7 @@ public class UserRead extends User implements IPassword {
      * @param inputScanner Scanner System.in scanner
      */
     void displayMainMenuCustomer(UserRead userRead, Scanner inputScanner) throws IOException {
+        System.out.println(" ");
         System.out.println("Welcome, " + userRead.getFirstName() + " " + userRead.getLastName());
         System.out.println("What would you like to do today?");
         System.out.println("(V) View Bank Account Details");
@@ -193,6 +195,7 @@ public class UserRead extends User implements IPassword {
         System.out.println("(E) Exit System");
         System.out.print("Choice (Type the letter associated with the option): ");
         String choice = inputScanner.nextLine();
+        System.out.println(" ");
 
         BankAccount bankAccount = new BankAccount();
         BankAccountTransaction transaction = new BankAccountTransaction();
@@ -227,6 +230,22 @@ public class UserRead extends User implements IPassword {
                 System.err.println("Please type in the letter corresponding to 1 of the choices only.");
                 displayMainMenuCustomer(userRead, inputScanner);
                 break;
+        }
+    }
+
+    /**
+     * Go back to main menu based on user role.
+     * @param inputScanner Scanner System.in scanner
+     * @param user UserRead object
+     * @throws IOException wrong input handling
+     */
+    void backToMainMenu(Scanner inputScanner, UserRead user) throws IOException {
+        if (Objects.equals(user.userRole, "banker")) { // Go back to main menu
+            user.displayMainMenuBanker(user, inputScanner);
+
+        } else if (Objects.equals(user.userRole, "customer")) {
+            user.displayMainMenuCustomer(user, inputScanner);
+
         }
     }
 }

@@ -133,7 +133,7 @@ public class UserCreate extends User implements IPassword {
                     System.out.println("Password successfully reset.");
                     System.out.println(" ");
 
-                    userRead.displayMainMenuBanker(userRead, inputScanner);
+                    userRead.backToMainMenu(inputScanner, userRead);
 
                 } else { // Banker is resetting their own pw
                     System.out.print("Current Password: ");

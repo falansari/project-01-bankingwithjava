@@ -272,6 +272,7 @@ public class BankAccount {
             System.out.println("Creating new bank account...");
             if (createBankAccount(userCPR, accountType, cardType)) {
                 System.out.println("New bank account successfully created.");
+                user.backToMainMenu(inputScanner, user);
             } else {
                 System.out.println("New bank account creation failed, please try again.");
                 displayCreateAccount(inputScanner);
@@ -284,7 +285,6 @@ public class BankAccount {
         }
     }
 
-    // TODO: Add buttons for moving to view transaction history of either account
     // TODO: Add if it's over withdrawn and penalties if any
     /**
      * View customer's list of bank accounts and their details.
@@ -316,5 +316,7 @@ public class BankAccount {
             System.out.println("Account Balance: $" + value[5]);
             System.out.println(" ");
         });
+
+        user.backToMainMenu(scanner, user);
     }
 }
