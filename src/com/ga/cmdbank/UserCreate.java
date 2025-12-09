@@ -133,7 +133,7 @@ public class UserCreate extends User implements IPassword {
                     System.out.println("Password successfully reset.");
                     System.out.println(" ");
 
-                    userRead.displayMainMenuBanker(userRead, inputScanner);
+                    userRead.backToMainMenu(inputScanner, userRead);
 
                 } else { // Banker is resetting their own pw
                     System.out.print("Current Password: ");
@@ -167,7 +167,7 @@ public class UserCreate extends User implements IPassword {
 
                     System.out.println("Password successfully reset. Please login again.");
 
-                    userRead.display(inputScanner);
+                    userRead.displayLogin(inputScanner);
                 }
 
             } else if (String.valueOf(userRead.userRole).equals("customer")) { // customer is resetting their own pw
@@ -203,7 +203,7 @@ public class UserCreate extends User implements IPassword {
 
                 System.out.println("Password successfully reset. Please login again.");
 
-                userRead.display(inputScanner);
+                userRead.displayLogin(inputScanner);
 
             }
         } catch (Exception e) {

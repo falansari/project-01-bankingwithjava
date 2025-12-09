@@ -3,7 +3,6 @@ package com.ga.cmdbank;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -95,12 +94,14 @@ public class BankAccountTransaction extends BankAccount {
 
             if (deposit(account, amount)) {
                 // Add transaction in a transaction history file
-                TransactionHistory record = new TransactionHistory(user.cpr, account.bankAccountID, "deposit", amount);
+                TransactionHistory record = new TransactionHistory(user.cpr, account.bankAccountID, "deposit", amount, account.balance);
                 record.recordTransaction();
 
                 System.out.println("Amount of $" + amount + " successfully deposited.");
                 System.out.println(" ");
                 System.out.println("New Account Balance: $" + account.balance);
+
+                user.backToMainMenu(inputScanner, user);
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -149,9 +150,8 @@ public class BankAccountTransaction extends BankAccount {
      * Display withdraw from account balance menu
      * @param inputScanner Scanner
      * @param user Object
-     * @throws IOException Input exception handling
      */
-    void displayWithdraw(Scanner inputScanner, UserRead user) throws IOException {
+    void displayWithdraw(Scanner inputScanner, UserRead user) {
         System.out.println("WITHDRAW FROM ACCOUNT:");
         System.out.print("Account ID: ");
         int accountId = Integer.parseInt(inputScanner.nextLine().strip());
@@ -202,12 +202,14 @@ public class BankAccountTransaction extends BankAccount {
 
             if (withdraw(account, amount)) {
                 // Add transaction in a transaction history file
-                TransactionHistory record = new TransactionHistory(user.cpr, account.bankAccountID, "withdraw", amount);
+                TransactionHistory record = new TransactionHistory(user.cpr, account.bankAccountID, "withdraw", amount, account.balance);
                 record.recordTransaction();
 
                 System.out.println("Amount of $" + amount + " successfully withdrawn.");
                 System.out.println(" ");
                 System.out.println("New Account Balance: $" + account.balance);
+
+                user.backToMainMenu(inputScanner, user);
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -275,9 +277,8 @@ public class BankAccountTransaction extends BankAccount {
      * Display transfer from account balance menu
      * @param inputScanner Scanner
      * @param user Object
-     * @throws IOException Input exception handling
      */
-    void displayTransfer(Scanner inputScanner, UserRead user) throws IOException {
+    void displayTransfer(Scanner inputScanner, UserRead user) {
         System.out.println("TRANSFER FROM ACCOUNT:");
         System.out.print("Account ID: ");
         int accountId = Integer.parseInt(inputScanner.nextLine().strip());
@@ -360,15 +361,17 @@ public class BankAccountTransaction extends BankAccount {
 
             if (transfer(account, transferAccount, amount)) {
                 // Add transaction in a transaction history file
-                TransactionHistory record = new TransactionHistory(user.cpr, account.bankAccountID, "transfer", amount, transferAccount.bankAccountID, isOwnAccount);
+                TransactionHistory record = new TransactionHistory(user.cpr, account.bankAccountID, "transfer", amount, transferAccount.bankAccountID, isOwnAccount, account.balance);
                 record.recordTransaction();
 
                 System.out.println("Amount of $" + amount + " successfully transferred.");
                 System.out.println(" ");
                 System.out.println("New Account Balance: $" + account.balance);
+
+                user.backToMainMenu(inputScanner, user);
             }
         } catch (Exception e) {
-            System.err.println(e.getMessage() + " TRACE: " + Arrays.toString(e.getStackTrace()));
+            System.err.println(e.getMessage());
             displayTransfer(inputScanner, user);
         }
     }

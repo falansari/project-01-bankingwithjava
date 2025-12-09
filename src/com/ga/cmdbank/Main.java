@@ -7,6 +7,6 @@ public class Main {
         Scanner inputScanner = new Scanner(System.in); // Universal input scanner
         UserRead userRead = new UserRead();
 
-        userRead.display(inputScanner);
+        userRead.displayLogin(inputScanner);
     }
 }
