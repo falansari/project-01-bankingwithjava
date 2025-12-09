@@ -43,7 +43,7 @@ public class UserRead extends User implements IPassword {
      * Login an existing user to the system.
      * @param username int User's username, default is their CPR number.
      * @param password  String  User's supplied password, must be verified first before allowing login.
-     * @return String[] User's stored data in users.txt file. Format: {cpr,firstName,lastName,accountRole,hashedPassword,passwordSalt}
+     * @return UserRead User's stored data in users.txt file as an object. Format: {cpr,firstName,lastName,accountRole,hashedPassword,passwordSalt}
      */
     UserRead login(int username, String password) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         if (!exists(username)) throw new IOException("A user with username " + username + " does not exist.");
