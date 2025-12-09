@@ -3,6 +3,9 @@ package com.ga.cmdbank;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 
 /**
  * General purpose components
@@ -56,6 +59,27 @@ public class UtilityComponent {
      */
     public LocalDate getTodayDate() {
         return LocalDateTime.now().toLocalDate();
+    }
+
+    public LocalTime getTimeFromDatetime(String datetimeString) {
+        try {
+            LocalDateTime localDateTime = convertStringToDateTime(datetimeString);
+
+            return localDateTime.toLocalTime();
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Error parsing datetime string to local time. Make sure the string is a valid local datetime format.");
+        }
+    }
+
+    public String getFormattedTimeFromDatetime(String datetimeString, String format) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+            LocalTime localTime = getTimeFromDatetime(datetimeString);
+
+            return localTime.format(formatter);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("LocalTime could not be parsed TRACE: " + Arrays.toString(e.getStackTrace()));
+        }
     }
 
     /**

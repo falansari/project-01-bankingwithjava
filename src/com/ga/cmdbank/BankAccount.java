@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -355,13 +356,15 @@ public class BankAccount {
 
             System.out.println("ISSUE DATE: " + utilityComponent.getTodayDate());
             System.out.println(" ");
-            System.out.println("   DATE   |           DESCRIPTION           |    AMOUNT   |   BALANCE   ");
+            System.out.println("      DATE     |      TIME     |           DESCRIPTION           |    AMOUNT   |   BALANCE   ");
+            System.out.println("---------------------------------------------------------------------------------------------");
 
             double[] totalWithdrawals = {0.0};
             double[] totalDeposits = {0.0};
 
             accountTransactions.forEach((key, value) -> {
                 LocalDate date = utilityComponent.getDateFromDatetime(value[2]);
+                String time = utilityComponent.getFormattedTimeFromDatetime(value[2], "HH:mm:ss a");
                 String transactionType = value[3];
                 String description = "";
                 String transferToAccount = value[5];
@@ -383,7 +386,8 @@ public class BankAccount {
                         break;
                 }
 
-                System.out.println(utilityComponent.padString(date.toString(), 10)
+                System.out.println(utilityComponent.padString(date.toString(), 15)
+                        + "|" + utilityComponent.padString(time, 15)
                         + "|" + utilityComponent.padString(description, 33)
                         + "|" + utilityComponent.padString("$"+amount, 13)
                         + "|" + utilityComponent.padString("$"+balance, 13));
