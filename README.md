@@ -46,15 +46,17 @@ https://github.com/users/falansari/projects/11/views/1
   - Withdraw feature
   - Transfer feature
   - Transaction history records
-
-## UNRESOLVED ISSUES
 - **Filtering transactions** User can query the program and get transactions with certain conditions (e.g. today, yesterday, last week, last 7 days, last month, last 30 days and filtering on the basics of date and time).
 - **Overdraft Protection (requires login)**
-  - Charge an ACME overdraft protection fee of $35 when overdrafting. 
-  - Prevent withdrawing more than $100 if the account balance is negative.
-  - Deactivate the account after 2 overdrafts; reactivate if the customer resolves the negative balance and pays the overdraft fees.
+    - Charge an ACME overdraft protection fee of $35 when overdrafting.
+    - Prevent withdrawing more than $100 if the account balance is negative.
+    - Deactivate the account after 2 overdrafts; reactivate if the customer resolves the negative balance and pays the overdraft fees.
+- Implemented ability to do as many operations as the user wants before deciding when to exit the system.
+
+## UNRESOLVED ISSUES
+- Overdraft count should be reset with a transfer from another account also not only deposit.
 
 ## IDEAS FOR IMPROVEMENTS
-- Implement ability to do as many operations as the user wants before deciding when to exit the system.
+- PDF statement print out
 - Add ability to prematurely end any ongoing operation and go back to the main menu without completing the operation.
 - Encrypt all sensitive user and accounts data, not only passwords to prevent data tampering.
