@@ -1,0 +1,4 @@
+33333333;zainab;alansari;banker;kRuu9C5kI0L5/AE4QHH4HI4/Fn6bu9K5ev5U3G/3OwI=;Vks/Y82LMTc56MUJEZUKjg==;
+44444444;haya;ahmed;customer;6ALDC3K4p7Ef2yjam8lt5gwZ48eBaSU/JAh78NWn9uE=;teCNpGHLIq+XG0mpb7Qs0A==;
+11111111;fatima;alansari;banker;WANMpxP7qL9sYxfX0G7GR9r/Kmi2/9EMXWTRDWTwO0Y=;CXiK3JIcxFNRXxmSJf+RQw==;
+66666666;amina;abdulkarim;customer;OaVXCgQvQlNFulCZLkPwOChrpa092SPBCo+5Uc+QNuE=;wQiRlPnnLcIukEckNtmuHw==;

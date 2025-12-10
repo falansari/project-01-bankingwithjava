@@ -1,0 +1,4 @@
+100001;33333333;checking;510000001;DebitMastercard;28000.0;0
+100002;33333333;savings;510000002;DebitMastercard;15055.6;0
+100005;44444444;checking;530000002;DebitMastercardTitanium;165.0;1
+100006;44444444;savings;550000001;DebitMastercardPlatinum;124288.9;0
