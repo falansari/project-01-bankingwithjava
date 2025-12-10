@@ -6,7 +6,27 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Overdraft Protection (requires login)
+ *
+ * Charge an ACME overdraft protection fee of $35 when over-drafting.
+ * Prevent withdrawing more than $100 if the account balance is negative.
+ * Deactivate the account after 2 overdrafts; reactivate if the customer resolves the negative balance and pays the overdraft fees.
+ */
 public class BankAccountTransaction extends BankAccount {
+    /**
+     * Charge when an overdraft transaction is made
+     */
+    final double overdraftFee = 35.0;
+    /**
+     * Withdraw transaction cap when an account is already overdrafted
+     */
+    final double overDraftedWithdrawCap = 100.0;
+    /**
+     * Max number of overdraft withdrawals
+     */
+    final int overdraftCountCap = 2;
+
     /**
      * Deposit money amount into specified bank account. Returns true if successful, otherwise false.
      * @param bankAccount Object bank Account to deposit into
@@ -19,6 +39,8 @@ public class BankAccountTransaction extends BankAccount {
 
         bankAccount.balance += amount;
 
+        if (bankAccount.overdraftCount > 0 && bankAccount.balance >= 0.0) bankAccount.overdraftCount = 0; // Remove overdraft ticks when balance brought back to positive.
+
         for (int _i = 0; _i < accountsData.size(); _i++) {
             String row = accountsData.get(_i);
 
@@ -30,7 +52,8 @@ public class BankAccountTransaction extends BankAccount {
                         + rowData[2] + ";"
                         + rowData[3] + ";"
                         + rowData[4] + ";"
-                        + sum;
+                        + sum        + ";"
+                        + bankAccount.overdraftCount;
 
                 accountsData.set(_i, newRowData);
                 Files.write(filepath, accountsData);
@@ -120,9 +143,24 @@ public class BankAccountTransaction extends BankAccount {
     boolean withdraw(BankAccount bankAccount, double amount) throws IOException {
         List<String> accountsData = Files.readAllLines(filepath);
 
-        // Check amount does not exceed balance
-        if (bankAccount.balance < amount) throw new IOException("Withdraw amount cannot exceed balance.");
-        bankAccount.balance -= amount;
+        // If amount exceeds balance, overdraft the account
+        if (bankAccount.balance < amount) { // overdraft account
+            if (bankAccount.overdraftCount >= overdraftCountCap)
+                throw new IOException("Your account has already been overdrafted twice. Please resolve the fees and return the account to a positive balance before you can use it again.");
+
+            if (bankAccount.balance < 0.0) { // Balance already negative
+                bankAccount.balance = bankAccount.balance - overDraftedWithdrawCap - overdraftFee;
+                bankAccount.overdraftCount++;
+
+            } else { // not yet overdrafted
+                bankAccount.balance = bankAccount.balance - amount - overdraftFee;
+                bankAccount.overdraftCount++;
+
+            }
+        } else {
+            bankAccount.balance -= amount;
+
+        }
 
         for (int _i = 0; _i < accountsData.size(); _i++) {
             String row = accountsData.get(_i);
@@ -135,7 +173,8 @@ public class BankAccountTransaction extends BankAccount {
                         + rowData[2] + ";"
                         + rowData[3] + ";"
                         + rowData[4] + ";"
-                        + subtract;
+                        + bankAccount.balance   + ";"
+                        + bankAccount.overdraftCount;
 
                 accountsData.set(_i, newRowData);
                 Files.write(filepath, accountsData);
@@ -199,7 +238,21 @@ public class BankAccountTransaction extends BankAccount {
 
             // Check withdraw amount does not exceed their account's balance
             // TODO: Change it into overdraw warning and support with penalty for overdraft system
-            if (account.balance < amount) throw new IOException("Your account balance is not enough to withdraw $" + amount + ". Current total withdrawals for today is $" + transactionAmountToday);
+            if (account.balance < amount && account.overdraftCount >= overdraftCountCap) {
+                System.err.println("Your account has already reached maximum overdraft counts. Please deposit to return the balance to a positive amount before you can withdraw again.");
+
+                user.backToMainMenu(inputScanner, user);
+            }
+
+            if (account.balance < amount && account.overdraftCount < overdraftCountCap) {
+                if (account.overdraftCount == 0) {
+                    System.err.println("Your account balance is below $" + amount + ". An overdraft fee of " + overdraftFee + " has been applied.");
+
+                } else {
+                    System.err.println("Your account balance is below $" + amount
+                            + ". An overdraft fee of " + overdraftFee + " has been applied, and withdrawal capped at " + overDraftedWithdrawCap + ".");
+                }
+            }
 
             if (withdraw(account, amount)) {
                 // Add transaction in a transaction history file
@@ -248,7 +301,8 @@ public class BankAccountTransaction extends BankAccount {
                         + rowData[2] + ";"
                         + rowData[3] + ";"
                         + rowData[4] + ";"
-                        + subtract;
+                        + subtract   + ";"
+                        + withdrawBankAccount.overdraftCount;
 
                 accountsData.set(_i, newRowData);
                 Files.write(filepath, accountsData);
@@ -262,7 +316,8 @@ public class BankAccountTransaction extends BankAccount {
                         + rowData[2] + ";"
                         + rowData[3] + ";"
                         + rowData[4] + ";"
-                        + sum;
+                        + sum        + ";"
+                        + depositBankAccount.overdraftCount;
 
                 accountsData.set(_i, newRowData);
                 Files.write(filepath, accountsData);
@@ -301,7 +356,11 @@ public class BankAccountTransaction extends BankAccount {
             System.out.println(" ");
 
             // Check transfer amount does not exceed their account's balance
-            if (account.balance < amount) throw new IOException("Your account balance is not enough to transfer $" + amount);
+            if (account.balance < amount) {
+                System.err.println("Your account balance is not enough to transfer $" + amount);
+                user.backToMainMenu(inputScanner, user);
+
+            }
 
             System.out.print("Transfer to Account ID: ");
             int transferAccountId = Integer.parseInt(inputScanner.nextLine().strip());
