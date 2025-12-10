@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * General purpose components
@@ -71,6 +72,38 @@ public class UtilityComponent {
         }
     }
 
+    /**
+     * Get all the dates from start date (inclusive) until end date (inclusive) as a list.
+     * @param startDate LocalDate
+     * @param endDate LocalDate
+     * @return List of LocalDate
+     */
+    public List<LocalDate> getLocalDateRange(LocalDate startDate, LocalDate endDate) {
+        try {
+            return startDate.datesUntil(endDate.plusDays(1)).toList();
+        } catch (Exception e) {
+            throw new RuntimeException(e.getCause());
+        }
+    }
+
+    /**
+     * Get number of days from start date (inclusive) until end date (inclusive).
+     * @param startDate LocalDate
+     * @param endDate LocalDate
+     * @return int Number of days
+     */
+    public int numberOfDays(LocalDate startDate, LocalDate endDate) {
+        List<LocalDate> dates = getLocalDateRange(startDate, endDate);
+
+        return dates.size();
+    }
+
+    /**
+     * Get formatted LocalTime from DateTime string based on supplied format.
+     * @param datetimeString String
+     * @param format String LocalTime formatter
+     * @return String Formatted LocalTime
+     */
     public String getFormattedTimeFromDatetime(String datetimeString, String format) {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
