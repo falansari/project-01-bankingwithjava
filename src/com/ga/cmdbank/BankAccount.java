@@ -46,6 +46,10 @@ public class BankAccount {
      */
     double balance = 0.0;
     /**
+     * Number of times this account has been overdrafted without payment of overdraft fees.
+     */
+    int overdraftCount = 0;
+    /**
      * Data save file path for bank accounts.
      */
     final Path filepath = Paths.get("data/accounts.txt");
@@ -53,13 +57,14 @@ public class BankAccount {
 
     public BankAccount() {}
 
-    public BankAccount(int accountId, int userCPR, String accountType, int cardId, String cardType, double balance) {
+    public BankAccount(int accountId, int userCPR, String accountType, int cardId, String cardType, double balance, int overdraftCount) {
         this.bankAccountID = accountId;
         this.userCPR = userCPR;
         this.accountType = accountType;
         this.debitCardId = cardId;
         this.cardType = cardType;
         this.balance = balance;
+        this.overdraftCount = overdraftCount;
     }
 
     /**
@@ -126,13 +131,14 @@ public class BankAccount {
         this.userCPR = userCPR;
         this.accountType = accountType;
         this.cardType = cardType;
-        BankAccount bankAccount = new BankAccount(this.bankAccountID, this.userCPR, this.accountType, debitCardId, this.cardType, this.balance);
+        BankAccount bankAccount = new BankAccount(this.bankAccountID, this.userCPR, this.accountType, debitCardId, this.cardType, this.balance, this.overdraftCount);
         String valueBreak = ";";
         String accountString = bankAccount.bankAccountID +
                 valueBreak + bankAccount.userCPR +
                 valueBreak + bankAccount.accountType +
                 valueBreak + bankAccount.debitCardId +
-                valueBreak + bankAccount.cardType;
+                valueBreak + bankAccount.cardType +
+                valueBreak + bankAccount.overdraftCount;
 
         try {
             Files.writeString(filepath, accountString + System.lineSeparator(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
@@ -206,6 +212,7 @@ public class BankAccount {
                 bankAccount.debitCardId = Integer.parseInt(accountData[3]);
                 bankAccount.cardType = accountData[4];
                 bankAccount.balance = Double.parseDouble(accountData[5]);
+                bankAccount.overdraftCount =Integer.parseInt(accountData[6]);
 
                 return bankAccount;
             }
@@ -316,6 +323,7 @@ public class BankAccount {
             System.out.println("Card ID: " + value[3]);
             System.out.println("Card Type: " + value[4]);
             System.out.println("Account Balance: $" + value[5]);
+            System.out.println("Times Overdrafted: " + value[6]);
             System.out.println(" ");
         });
 
