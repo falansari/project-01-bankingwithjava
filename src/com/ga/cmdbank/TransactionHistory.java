@@ -170,6 +170,33 @@ public class TransactionHistory {
     }
 
     /**
+     * Get account's transaction history based on date range from start date (inclusive) until end date (inclusive).
+     * @param accountId int Bank Account ID
+     * @param transactionType String Transaction types: withdraw, deposit, transfer, all
+     * @param startDate LocalDate
+     * @param endDate LocalDate
+     * @return List of Transaction Strings from data file. Elements separated by ; symbol
+     * @throws IOException Input Error Handling
+     */
+    List<String> getAccountTransactionHistoryByDateRange(int accountId, String transactionType, LocalDate startDate, LocalDate endDate) throws IOException {
+        UtilityComponent utilityComponent = new UtilityComponent();
+        List<LocalDate> dates = utilityComponent.getLocalDateRange(startDate, endDate);
+        LinkedHashMap<Integer, String> transactionsMap = new LinkedHashMap<>();
+        int index = 0;
+
+        for (LocalDate date : dates) { // Get all the transactions on the list of dates
+            List<String> transactionsOnDate = getAccountTransactionHistoryByDate(accountId, transactionType, date);
+
+            for (String transaction : transactionsOnDate) {
+                transactionsMap.put(index, transaction);
+                index++;
+            }
+        }
+
+        return transactionsMap.values().stream().toList();
+    }
+
+    /**
      * Get total of transaction amounts conducted on a specific day by type of transaction. For 1 account.
      * @param accountId int Bank account ID
      * @param transactionType Type of transaction to retrieve: deposit, withdraw, transfer, all (for including all transaction types).

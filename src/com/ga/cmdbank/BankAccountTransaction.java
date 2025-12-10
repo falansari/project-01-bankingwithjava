@@ -52,9 +52,10 @@ public class BankAccountTransaction extends BankAccount {
         System.out.println("DEPOSIT INTO ACCOUNT:");
         System.out.print("Account ID: ");
         int accountId = Integer.parseInt(inputScanner.nextLine().strip());
-        BankAccount account = getAccount(accountId);
 
         try {
+            BankAccount account = getAccount(accountId);
+
             // Check user has authorization to deposit into this account
             if (String.valueOf(user.userRole).equals("customer")) {
                 if (account.userCPR != user.cpr) throw new IOException("You are not authorized to deposit into another person's account.");
