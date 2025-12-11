@@ -5,8 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 /**
@@ -44,6 +46,10 @@ public class BankAccount {
      */
     double balance = 0.0;
     /**
+     * Number of times this account has been overdrafted without payment of overdraft fees.
+     */
+    int overdraftCount = 0;
+    /**
      * Data save file path for bank accounts.
      */
     final Path filepath = Paths.get("data/accounts.txt");
@@ -51,13 +57,14 @@ public class BankAccount {
 
     public BankAccount() {}
 
-    public BankAccount(int accountId, int userCPR, String accountType, int cardId, String cardType, double balance) {
+    public BankAccount(int accountId, int userCPR, String accountType, int cardId, String cardType, double balance, int overdraftCount) {
         this.bankAccountID = accountId;
         this.userCPR = userCPR;
         this.accountType = accountType;
         this.debitCardId = cardId;
         this.cardType = cardType;
         this.balance = balance;
+        this.overdraftCount = overdraftCount;
     }
 
     /**
@@ -124,13 +131,15 @@ public class BankAccount {
         this.userCPR = userCPR;
         this.accountType = accountType;
         this.cardType = cardType;
-        BankAccount bankAccount = new BankAccount(this.bankAccountID, this.userCPR, this.accountType, debitCardId, this.cardType, this.balance);
+        BankAccount bankAccount = new BankAccount(this.bankAccountID, this.userCPR, this.accountType, debitCardId, this.cardType, this.balance, this.overdraftCount);
         String valueBreak = ";";
         String accountString = bankAccount.bankAccountID +
                 valueBreak + bankAccount.userCPR +
                 valueBreak + bankAccount.accountType +
                 valueBreak + bankAccount.debitCardId +
-                valueBreak + bankAccount.cardType;
+                valueBreak + bankAccount.cardType +
+                valueBreak + bankAccount.balance +
+                valueBreak + bankAccount.overdraftCount;
 
         try {
             Files.writeString(filepath, accountString + System.lineSeparator(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
@@ -204,6 +213,7 @@ public class BankAccount {
                 bankAccount.debitCardId = Integer.parseInt(accountData[3]);
                 bankAccount.cardType = accountData[4];
                 bankAccount.balance = Double.parseDouble(accountData[5]);
+                bankAccount.overdraftCount =Integer.parseInt(accountData[6]);
 
                 return bankAccount;
             }
@@ -213,10 +223,25 @@ public class BankAccount {
     }
 
     /**
+     * Check if a user exists based on CPR number. Returns true if it exists, otherwise false.
+     * @param bankAccountID int bank account number
+     * @return boolean True if the bank account was found, otherwise false.
+     * @throws IOException IOException
+     */
+    boolean exists(int bankAccountID) throws IOException {
+        BankAccount bankAccount = getAccount(bankAccountID);
+
+        return bankAccount != null;
+    }
+
+    /**
      * Display the Create New User Command Line prompt.
      */
-    void displayCreateAccount(Scanner inputScanner) {
+    void displayCreateAccount(Scanner inputScanner, UserRead userRead) {
         try {
+            if (!Objects.equals(userRead.userRole, "banker"))
+                throw new RuntimeException("You are not authorized to create new bank accounts. Please contact a banker for assistance.");
+
             System.out.println("CREATE NEW BANK ACCOUNT");
             System.out.println(" ");
 
@@ -260,49 +285,322 @@ public class BankAccount {
             System.out.println("Creating new bank account...");
             if (createBankAccount(userCPR, accountType, cardType)) {
                 System.out.println("New bank account successfully created.");
+                System.out.println(" ");
+                user.backToMainMenu(inputScanner, userRead);
             } else {
-                System.out.println("New bank account creation failed, please try again.");
-                displayCreateAccount(inputScanner);
+                throw new RuntimeException("New bank account creation failed, please try again.");
             }
 
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.out.println(" ");
-            displayCreateAccount(inputScanner);
+            displayCreateAccount(inputScanner, userRead);
         }
     }
 
-    // TODO: Add buttons for moving to view transaction history of either account
-    // TODO: Add if it's over withdrawn and penalties if any
     /**
      * View customer's list of bank accounts and their details.
      * @param scanner Scanner System.in input scanner
      * @param user Object   UserRead object, must possess all the details (cpr, firstName, lastName
-     * @throws IOException Exception handling
      */
-    void displayAccountsList(Scanner scanner, UserRead user) throws IOException {
-        System.out.println("BANK ACCOUNTS OF " + user.getFirstName() + " " + user.getLastName() + ":");
-        HashMap<Integer, String[]> userAccounts = new HashMap<>();
-        int count = 0;
+    void displayAccountsList(Scanner scanner, UserRead user) {
+        System.out.print("Customer CPR: ");
+        String cpr = scanner.nextLine().strip();
+        System.out.println(" ");
 
-        for (String account : getAccountsData()) { // Find and store user's accounts
-            String[] accountData = account.split(";");
+        try {
+            UserRead customer = new UserRead();
+            String[] customerData = customer.read(customer.convertCPRInput(cpr));
+            customer.setCprInput(customerData[0]);
+            customer.setCpr(customer.convertCPRInput(customerData[0]));
+            customer.setFirstName(customerData[1]);
+            customer.setLastName(customerData[2]);
+            customer.setUserRole(customerData[3]);
 
-            if (count == 2) break; // There can only be 1 checking and 1 savings account for a user, so allow breaking loop early.
+            if (!Objects.equals(user.getCpr(), customer.getCpr()) && !Objects.equals(user.userRole, "banker"))
+                throw new IOException("You are not authorized to view this customer's data.");
 
-            if (user.getCpr() == Integer.parseInt(accountData[1])) {
-                userAccounts.put(count, accountData);
-                count++;
+            System.out.println("BANK ACCOUNTS OF " + customer.getFirstName() + " " + customer.getLastName() + ":");
+            HashMap<Integer, String[]> userAccounts = new HashMap<>();
+            int count = 0;
+
+            for (String account : getAccountsData()) { // Find and store user's accounts
+                String[] accountData = account.split(";");
+
+                if (count == 2)
+                    break; // There can only be 1 checking and 1 savings account for a user, so allow breaking loop early.
+
+                if (customer.getCpr() == Integer.parseInt(accountData[1])) {
+                    userAccounts.put(count, accountData);
+                    count++;
+                }
             }
-        }
 
-        userAccounts.forEach((key, value) -> {
-            System.out.println(value[2].toUpperCase() + " ACCOUNT DETAILS:");
-            System.out.println("Account Number: " + value[0]);
-            System.out.println("Card ID: " + value[3]);
-            System.out.println("Card Type: " + value[4]);
-            System.out.println("Account Balance: $" + value[5]);
+            userAccounts.forEach((key, value) -> {
+                System.out.println(value[2].toUpperCase() + " ACCOUNT DETAILS:");
+                System.out.println("Account Number: " + value[0]);
+                System.out.println("Card ID: " + value[3]);
+                System.out.println("Card Type: " + value[4]);
+                System.out.println("Account Balance: $" + value[5]);
+                System.out.println("Times Overdrafted: " + value[6]);
+                System.out.println(" ");
+            });
+
+            user.backToMainMenu(scanner, user);
+
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
+    /**
+     * View bank account's complete history account statement.
+     * @param scanner Scanner System.in input scanner
+     * @param user Object   UserRead object, must possess all the details (cpr, firstName, lastName
+     */
+    void displayAccountStatement(Scanner scanner, UserRead user) {
+        final UtilityComponent utilityComponent = new UtilityComponent();
+        System.out.println("BANK ACCOUNT STATEMENT:");
+        System.out.print("Account ID: ");
+        int inputAccountId = Integer.parseInt(scanner.nextLine().strip());
+
+        try {
+            BankAccount account = getAccount(inputAccountId);
+
+            if (!Objects.equals(user.userRole, "banker") && account.userCPR != user.cpr) throw new IOException("You are not authorized to view this account");
+
             System.out.println(" ");
-        });
+            System.out.println(account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " STATEMENT:");
+            HashMap<Integer, String[]> accountTransactions = new HashMap<>();
+
+            List<String> accountCompleteHistory = new TransactionHistory().getAccountTransactionHistory(inputAccountId, "all");
+
+            for (int _i = 0; _i < accountCompleteHistory.size(); _i++) { // Find and store user's accounts
+                String record = accountCompleteHistory.get(_i);
+                String[] recordData = record.split(";");
+
+                accountTransactions.put(_i, recordData);
+            }
+
+            System.out.println(" ");
+            System.out.println("---------------------------------------------------------------------------------------------");
+            System.out.println(" ");
+            System.out.println(utilityComponent.padString(account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " COMPLETE HISTORY STATEMENT", 93));
+
+            String[] customerInfo = user.read(account.userCPR);
+            String customerName = customerInfo[1].toUpperCase() + " " + customerInfo[2].toUpperCase();
+            System.out.println(" ");
+            System.out.println("ISSUE DATE: " + utilityComponent.getTodayDate());
+            System.out.println("CUSTOMER NAME: " + customerName);
+            System.out.println("ATTACHED DEBIT CARD: " + account.cardType);
+            System.out.println(" ");
+            System.out.println("      DATE     |      TIME     |           DESCRIPTION           |    AMOUNT   |   BALANCE   ");
+            System.out.println("---------------------------------------------------------------------------------------------");
+
+            double[] totalWithdrawals = {0.0};
+            double[] totalDeposits = {0.0};
+
+            accountTransactions.forEach((key, value) -> {
+                LocalDate date = utilityComponent.getDateFromDatetime(value[2]);
+                String time = utilityComponent.getFormattedTimeFromDatetime(value[2], "HH:mm:ss a");
+                String transactionType = value[3];
+                String description = "";
+                String transferToAccount = value[5];
+                String amount = value[4];
+                String balance = value[7];
+
+                switch (transactionType) {
+                    case "withdraw":
+                        totalWithdrawals[0] += Double.parseDouble(amount);
+                        description = "ATM Withdrawal";
+                        break;
+                    case "deposit":
+                        totalDeposits[0] += Double.parseDouble(amount);
+                        description = "ATM Deposit";
+                        break;
+                    case "transfer":
+                        totalWithdrawals[0] += Double.parseDouble(amount);
+                        description = "Transfer to account No." + transferToAccount;
+                        break;
+                }
+
+                System.out.println(utilityComponent.padString(date.toString(), 15)
+                        + "|" + utilityComponent.padString(time, 15)
+                        + "|" + utilityComponent.padString(description, 33)
+                        + "|" + utilityComponent.padString("$"+amount, 13)
+                        + "|" + utilityComponent.padString("$"+balance, 13));
+            });
+
+            System.out.println(" ");
+            System.out.println("TOTAL WITHDRAWALS: $" + totalWithdrawals[0]);
+            System.out.println("TOTAL DEPOSITS: $" + totalDeposits[0]);
+            System.out.println(" ");
+            System.out.println("---------------------------------------------------------------------------------------------");
+
+            user.backToMainMenu(scanner, user);
+
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            displayAccountStatement(scanner, user);
+
+        }
+    }
+
+    /**
+     * View bank account's statement based on date range.
+     * @param scanner Scanner System.in input scanner
+     * @param user Object   UserRead object, must possess all the details (cpr, firstName, lastName
+     */
+    void displayAccountStatementSearch(Scanner scanner, UserRead user) {
+        final UtilityComponent utilityComponent = new UtilityComponent();
+        System.out.println("BANK ACCOUNT STATEMENT:");
+        System.out.print("Account ID: ");
+        int inputAccountId = Integer.parseInt(scanner.nextLine().strip());
+
+        try {
+            BankAccount account = getAccount(inputAccountId);
+
+            if (!Objects.equals(user.userRole, "banker") && account.userCPR != user.cpr) throw new IOException("You are not authorized to view this account");
+
+            System.out.println("Get statement from: ");
+            System.out.println("(1) Today");
+            System.out.println("(2) Yesterday");
+            System.out.println("(3) This Calendar Week");
+            System.out.println("(4) Last Calendar Week");
+            System.out.println("(5) This Calendar Month");
+            System.out.println("(6) Last 30 Days");
+            System.out.println("(7) This Calendar Year");
+            System.out.println("(8) Last 12 Months");
+            System.out.print("Choice: ");
+            int searchTerm = Integer.parseInt(scanner.nextLine().strip());
+            LocalDate startDate;
+            LocalDate endDate;
+            String title;
+
+            switch (searchTerm) {
+                case 1: // Today
+                    startDate = LocalDate.now();
+                    endDate = LocalDate.now();
+                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " TODAY'S STATEMENT";
+                    break;
+
+                case 2: // Yesterday
+                    startDate = LocalDate.now().minusDays(1);
+                    endDate = LocalDate.now().minusDays(1);
+                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " YESTERDAY'S STATEMENT";
+                    break;
+
+                case 3: // This week
+                    startDate = LocalDate.now().minusDays(6);
+                    endDate = LocalDate.now();
+                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " THIS WEEK'S STATEMENT";
+                    break;
+
+                case 4: // Last week
+                    startDate = LocalDate.now().minusWeeks(2);
+                    endDate = LocalDate.now().minusWeeks(1);
+                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " LAST WEEK'S STATEMENT";
+                    break;
+
+                case 5: // This month
+                    startDate = LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonthValue(), 1); // First day of this month
+                    endDate = LocalDate.now();
+                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " THIS MONTH'S STATEMENT";
+                    break;
+
+                case 6: // Last 30 days
+                    startDate = LocalDate.now().minusDays(29);
+                    endDate = LocalDate.now();
+                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " LAST 30 DAYS STATEMENT";
+                    break;
+
+                case 7: // This year
+                    startDate = LocalDate.of(LocalDate.now().getYear(), 1, 1); // First day of this year
+                    endDate = LocalDate.now();
+                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " THIS YEAR'S STATEMENT";
+                    break;
+
+                case 8: // Last 12 months
+                    startDate = LocalDate.now().minusDays(364);
+                    endDate = LocalDate.now();
+                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " LAST 12 MONTHS STATEMENT";
+                    break;
+
+                default:
+                    throw new IOException("Please input a number from the options only");
+            }
+
+            System.out.println(" ");
+            System.out.println("---------------------------------------------------------------------------------------------");
+            System.out.println(" ");
+            System.out.println(utilityComponent.padString(title, 93));
+            HashMap<Integer, String[]> accountTransactions = new HashMap<>();
+
+            List<String> accountHistory = new TransactionHistory().getAccountTransactionHistoryByDateRange(inputAccountId, "all", startDate, endDate);
+
+            for (int _i = 0; _i < accountHistory.size(); _i++) { // Find and store user's accounts
+                String record = accountHistory.get(_i);
+                String[] recordData = record.split(";");
+
+                accountTransactions.put(_i, recordData);
+            }
+
+            String[] customerInfo = user.read(account.userCPR);
+            String customerName = customerInfo[1].toUpperCase() + " " + customerInfo[2].toUpperCase();
+
+            System.out.println("ISSUE DATE: " + utilityComponent.getTodayDate());
+            System.out.println("CUSTOMER NAME: " + customerName);
+            System.out.println("ATTACHED DEBIT CARD: " + account.cardType);
+            System.out.println(" ");
+            System.out.println("      DATE     |      TIME     |           DESCRIPTION           |    AMOUNT   |   BALANCE   ");
+            System.out.println("---------------------------------------------------------------------------------------------");
+
+            double[] totalWithdrawals = {0.0};
+            double[] totalDeposits = {0.0};
+
+            accountTransactions.forEach((key, value) -> {
+                LocalDate date = utilityComponent.getDateFromDatetime(value[2]);
+                String time = utilityComponent.getFormattedTimeFromDatetime(value[2], "HH:mm:ss a");
+                String transactionType = value[3];
+                String description = "";
+                String transferToAccount = value[5];
+                String amount = value[4];
+                String balance = value[7];
+
+                switch (transactionType) {
+                    case "withdraw":
+                        totalWithdrawals[0] += Double.parseDouble(amount);
+                        description = "ATM Withdrawal";
+                        break;
+                    case "deposit":
+                        totalDeposits[0] += Double.parseDouble(amount);
+                        description = "ATM Deposit";
+                        break;
+                    case "transfer":
+                        totalWithdrawals[0] += Double.parseDouble(amount);
+                        description = "Transfer to account No." + transferToAccount;
+                        break;
+                }
+
+                System.out.println(utilityComponent.padString(date.toString(), 15)
+                        + "|" + utilityComponent.padString(time, 15)
+                        + "|" + utilityComponent.padString(description, 33)
+                        + "|" + utilityComponent.padString("$"+amount, 13)
+                        + "|" + utilityComponent.padString("$"+balance, 13));
+            });
+
+            System.out.println(" ");
+            System.out.println("TOTAL WITHDRAWALS: $" + totalWithdrawals[0]);
+            System.out.println("TOTAL DEPOSITS: $" + totalDeposits[0]);
+            System.out.println(" ");
+            System.out.println("---------------------------------------------------------------------------------------------");
+
+            user.backToMainMenu(scanner, user);
+
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            displayAccountStatementSearch(scanner, user);
+
+        }
     }
 }

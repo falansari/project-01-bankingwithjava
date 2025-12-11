@@ -1,26 +1,12 @@
 package com.ga.cmdbank;
 
-import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
-        Scanner inputScanner = new Scanner(System.in); // Universal app scanner
+    public static void main(String[] args) throws InterruptedException {
+        Scanner inputScanner = new Scanner(System.in); // Universal input scanner
+        UserRead userRead = new UserRead();
 
-        try {
-            UserRead userRead = new UserRead().display(inputScanner);
-
-            switch (userRead.getUserRole()) {
-                case "customer":
-                    userRead.displayMainMenuCustomer(userRead, inputScanner);
-                    break;
-                case "banker":
-                    userRead.displayMainMenuBanker(userRead, inputScanner);
-                    break;
-            }
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
-
+        userRead.displayLogin(inputScanner);
     }
 }

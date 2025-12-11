@@ -10,19 +10,9 @@ import java.util.Scanner;
  * Read user data, including login.
  */
 public class UserRead extends User implements IPassword {
+    private int failedLoginAttemptsCount = 0;
 
     public UserRead() {}
-
-    /**
-     * Read existing user constructor.
-     * @param cprInput String user's CPR number. Unique user identifier and login ID.
-     * @param firstName String user's first name.
-     * @param lastName String user's last name.
-     * @param userRole String user's role, 1 of 2 options: [banker, customer].
-     */
-    public UserRead(String cprInput, String firstName, String lastName, String userRole) {
-        super(cprInput, firstName, lastName, userRole);
-    }
 
     /**
      * Read existing constructor.
@@ -41,7 +31,7 @@ public class UserRead extends User implements IPassword {
      * Login an existing user to the system.
      * @param username int User's username, default is their CPR number.
      * @param password  String  User's supplied password, must be verified first before allowing login.
-     * @return String[] User's stored data in users.txt file. Format: {cpr,firstName,lastName,accountRole,hashedPassword,passwordSalt}
+     * @return UserRead User's stored data in users.txt file as an object. Format: {cpr,firstName,lastName,accountRole,hashedPassword,passwordSalt}
      */
     UserRead login(int username, String password) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         if (!exists(username)) throw new IOException("A user with username " + username + " does not exist.");
@@ -58,23 +48,42 @@ public class UserRead extends User implements IPassword {
     /**
      * Display user login prompt.
      */
-    UserRead display(Scanner inputScanner) {
-
+    void displayLogin(Scanner inputScanner) throws InterruptedException {
         try {
             System.out.println("Welcome to CMD-BANK");
             System.out.println("Please Login to your user account:");
             System.out.print("CPR Number: ");
-            String cprInput = inputScanner.nextLine();
+            String cprInput = inputScanner.nextLine().strip();
             System.out.print("Password: ");
-            String passwordInput = inputScanner.nextLine();
+            String passwordInput = inputScanner.nextLine().strip();
 
-            return login(convertCPRInput(cprInput), passwordInput);
+            UserRead userRead = login(convertCPRInput(cprInput), passwordInput);
+            failedLoginAttemptsCount = 0;
+
+            switch (userRead.getUserRole()) {
+                case "customer":
+                    userRead.displayMainMenuCustomer(userRead, inputScanner);
+                    break;
+
+                case "banker":
+                    userRead.displayMainMenuBanker(userRead, inputScanner);
+                    break;
+
+            }
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            display(inputScanner);
-        }
+            failedLoginAttemptsCount++;
 
-        return null;
+            if (failedLoginAttemptsCount == 3) {
+                System.err.println("You have reached failed login attempts limit. Please wait 1 minute before trying again.");
+                Thread.sleep(60000);
+                failedLoginAttemptsCount = 0;
+                displayLogin(inputScanner);
+
+            } else {
+                System.err.println(e.getMessage() + "\nFailed attempts: " + failedLoginAttemptsCount + "/3");
+                displayLogin(inputScanner);
+            }
+        }
     }
 
     /**
@@ -84,12 +93,14 @@ public class UserRead extends User implements IPassword {
     void displayMainMenuBanker(UserRead userRead, Scanner inputScanner) throws IOException {
         if (!Objects.equals(userRead.getUserRole(), "banker")) throw new RuntimeException("This menu may only display for a banker.");
 
+        System.out.println(" ");
         System.out.println("Welcome, " + userRead.getFirstName() + " " + userRead.getLastName());
         System.out.println("What would you like to do today?");
         System.out.println("(C) Create new customer");
         System.out.println("(B) Create new customer bank account");
-        System.out.println("(V) View customer's account data");
-        System.out.println("(A) View my own bank accounts");
+        System.out.println("(V) View customer's or own account data");
+        System.out.println("(S) View Account Statement");
+        System.out.println("(M) Search Account Statement");
         System.out.println("(D) Deposit into bank account");
         System.out.println("(W) Withdraw from bank account");
         System.out.println("(T) Transfer from bank account");
@@ -97,6 +108,7 @@ public class UserRead extends User implements IPassword {
         System.out.println("(E) Exit System");
         System.out.print("Choice (Type the letter associated with the option): ");
         String choice = inputScanner.nextLine().strip();
+        System.out.println(" ");
 
         BankAccount bankAccount = new BankAccount();
         BankAccountTransaction transaction = new BankAccountTransaction();
@@ -104,29 +116,23 @@ public class UserRead extends User implements IPassword {
 
         switch (choice.toLowerCase()) {
             case "c":
-                userCreate.display(inputScanner);
+                userCreate.display(inputScanner, userRead);
                 break;
 
             case "b":
-                bankAccount.displayCreateAccount(inputScanner);
+                bankAccount.displayCreateAccount(inputScanner, userRead);
                 break;
 
             case "v":
-                System.out.println("Customer CPR: ");
-                String cpr = inputScanner.nextLine().strip();
-                UserRead customer = new UserRead();
-                String[] customerData = customer.read(convertCPRInput(cpr));
-                customer.setCprInput(customerData[0]);
-                customer.setCpr(convertCPRInput(customerData[0]));
-                customer.setFirstName(customerData[1]);
-                customer.setLastName(customerData[2]);
-                customer.setUserRole(customerData[3]);
-
-                bankAccount.displayAccountsList(inputScanner, customer);
+                bankAccount.displayAccountsList(inputScanner, userRead);
                 break;
 
-            case "a":
-                bankAccount.displayAccountsList(inputScanner, userRead);
+            case "s":
+                bankAccount.displayAccountStatement(inputScanner, userRead);
+                break;
+
+            case "m":
+                bankAccount.displayAccountStatementSearch(inputScanner, userRead);
                 break;
 
             case "d":
@@ -147,6 +153,7 @@ public class UserRead extends User implements IPassword {
 
             case "e":
                 System.out.println("Thank you for coming today! Goodbye.");
+                System.exit(0);
                 break;
 
             default:
@@ -162,16 +169,20 @@ public class UserRead extends User implements IPassword {
      * @param inputScanner Scanner System.in scanner
      */
     void displayMainMenuCustomer(UserRead userRead, Scanner inputScanner) throws IOException {
+        System.out.println(" ");
         System.out.println("Welcome, " + userRead.getFirstName() + " " + userRead.getLastName());
         System.out.println("What would you like to do today?");
         System.out.println("(V) View Bank Account Details");
+        System.out.println("(S) View Account Statement");
+        System.out.println("(M) Search Account Statement");
         System.out.println("(W) Withdraw Money");
         System.out.println("(D) Deposit Money");
         System.out.println("(T) Transfer Money");
         System.out.println("(R) Reset Password (Recommended after first login)");
         System.out.println("(E) Exit System");
         System.out.print("Choice (Type the letter associated with the option): ");
-        String choice = inputScanner.nextLine();
+        String choice = inputScanner.nextLine().strip();
+        System.out.println(" ");
 
         BankAccount bankAccount = new BankAccount();
         BankAccountTransaction transaction = new BankAccountTransaction();
@@ -180,6 +191,14 @@ public class UserRead extends User implements IPassword {
         switch (choice.toLowerCase()) {
             case "v":
                 bankAccount.displayAccountsList(inputScanner, userRead);
+                break;
+
+            case "s":
+                bankAccount.displayAccountStatement(inputScanner, userRead);
+                break;
+
+            case "m":
+                bankAccount.displayAccountStatementSearch(inputScanner, userRead);
                 break;
 
             case "w":
@@ -200,12 +219,29 @@ public class UserRead extends User implements IPassword {
 
             case "e":
                 System.out.println("Thank you for coming today! Goodbye.");
+                System.exit(0);
                 break;
 
             default:
                 System.err.println("Please type in the letter corresponding to 1 of the choices only.");
                 displayMainMenuCustomer(userRead, inputScanner);
                 break;
+        }
+    }
+
+    /**
+     * Go back to main menu based on user role.
+     * @param inputScanner Scanner System.in scanner
+     * @param user UserRead object
+     * @throws IOException wrong input handling
+     */
+    void backToMainMenu(Scanner inputScanner, UserRead user) throws IOException {
+        if (Objects.equals(user.userRole, "banker")) { // Go back to main menu
+            user.displayMainMenuBanker(user, inputScanner);
+
+        } else if (Objects.equals(user.userRole, "customer")) {
+            user.displayMainMenuCustomer(user, inputScanner);
+
         }
     }
 }
