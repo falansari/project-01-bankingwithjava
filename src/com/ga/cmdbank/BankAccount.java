@@ -294,7 +294,6 @@ public class BankAccount {
         }
     }
 
-    // TODO: Add if it's over withdrawn and penalties if any
     /**
      * View customer's list of bank accounts and their details.
      * @param scanner Scanner System.in input scanner
@@ -359,7 +358,17 @@ public class BankAccount {
                 accountTransactions.put(_i, recordData);
             }
 
+            System.out.println(" ");
+            System.out.println("---------------------------------------------------------------------------------------------");
+            System.out.println(" ");
+            System.out.println(utilityComponent.padString(account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " COMPLETE HISTORY STATEMENT", 93));
+
+            String[] customerInfo = user.read(account.userCPR);
+            String customerName = customerInfo[1].toUpperCase() + " " + customerInfo[2].toUpperCase();
+            System.out.println(" ");
             System.out.println("ISSUE DATE: " + utilityComponent.getTodayDate());
+            System.out.println("CUSTOMER NAME: " + customerName);
+            System.out.println("ATTACHED DEBIT CARD: " + account.cardType);
             System.out.println(" ");
             System.out.println("      DATE     |      TIME     |           DESCRIPTION           |    AMOUNT   |   BALANCE   ");
             System.out.println("---------------------------------------------------------------------------------------------");
@@ -401,6 +410,8 @@ public class BankAccount {
             System.out.println(" ");
             System.out.println("TOTAL WITHDRAWALS: $" + totalWithdrawals[0]);
             System.out.println("TOTAL DEPOSITS: $" + totalDeposits[0]);
+            System.out.println(" ");
+            System.out.println("---------------------------------------------------------------------------------------------");
 
             user.backToMainMenu(scanner, user);
 
@@ -440,55 +451,55 @@ public class BankAccount {
             int searchTerm = Integer.parseInt(scanner.nextLine().strip());
             LocalDate startDate;
             LocalDate endDate;
-            String title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " STATEMENT:";
+            String title;
 
             switch (searchTerm) {
                 case 1: // Today
                     startDate = LocalDate.now();
                     endDate = LocalDate.now();
-                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " TODAY'S STATEMENT:";
+                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " TODAY'S STATEMENT";
                     break;
 
                 case 2: // Yesterday
                     startDate = LocalDate.now().minusDays(1);
                     endDate = LocalDate.now().minusDays(1);
-                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " YESTERDAY'S STATEMENT:";
+                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " YESTERDAY'S STATEMENT";
                     break;
 
                 case 3: // This week
                     startDate = LocalDate.now().minusDays(6);
                     endDate = LocalDate.now();
-                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " THIS WEEK'S STATEMENT:";
+                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " THIS WEEK'S STATEMENT";
                     break;
 
                 case 4: // Last week
                     startDate = LocalDate.now().minusWeeks(2);
                     endDate = LocalDate.now().minusWeeks(1);
-                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " LAST WEEK'S STATEMENT:";
+                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " LAST WEEK'S STATEMENT";
                     break;
 
                 case 5: // This month
                     startDate = LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonthValue(), 1); // First day of this month
                     endDate = LocalDate.now();
-                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " THIS MONTH'S STATEMENT:";
+                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " THIS MONTH'S STATEMENT";
                     break;
 
                 case 6: // Last 30 days
                     startDate = LocalDate.now().minusMonths(2);
                     endDate = LocalDate.now().minusMonths(1);
-                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " LAST 30 DAYS STATEMENT:";
+                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " LAST 30 DAYS STATEMENT";
                     break;
 
                 case 7: // This year
                     startDate = LocalDate.of(LocalDate.now().getYear(), 1, 1); // First day of this year
                     endDate = LocalDate.now();
-                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " THIS YEAR'S STATEMENT:";
+                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " THIS YEAR'S STATEMENT";
                     break;
 
                 case 8: // Last Year
                     startDate = LocalDate.now().minusYears(2);
                     endDate = LocalDate.now().minusYears(1);
-                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " LAST 12 MONTHS STATEMENT:";
+                    title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " LAST 12 MONTHS STATEMENT";
                     break;
 
                 default:
@@ -496,7 +507,9 @@ public class BankAccount {
             }
 
             System.out.println(" ");
-            System.out.println(title);
+            System.out.println("---------------------------------------------------------------------------------------------");
+            System.out.println(" ");
+            System.out.println(utilityComponent.padString(title, 93));
             HashMap<Integer, String[]> accountTransactions = new HashMap<>();
 
             List<String> accountHistory = new TransactionHistory().getAccountTransactionHistoryByDateRange(inputAccountId, "all", startDate, endDate);
@@ -508,7 +521,12 @@ public class BankAccount {
                 accountTransactions.put(_i, recordData);
             }
 
+            String[] customerInfo = user.read(account.userCPR);
+            String customerName = customerInfo[1].toUpperCase() + " " + customerInfo[2].toUpperCase();
+
             System.out.println("ISSUE DATE: " + utilityComponent.getTodayDate());
+            System.out.println("CUSTOMER NAME: " + customerName);
+            System.out.println("ATTACHED DEBIT CARD: " + account.cardType);
             System.out.println(" ");
             System.out.println("      DATE     |      TIME     |           DESCRIPTION           |    AMOUNT   |   BALANCE   ");
             System.out.println("---------------------------------------------------------------------------------------------");
@@ -550,6 +568,8 @@ public class BankAccount {
             System.out.println(" ");
             System.out.println("TOTAL WITHDRAWALS: $" + totalWithdrawals[0]);
             System.out.println("TOTAL DEPOSITS: $" + totalDeposits[0]);
+            System.out.println(" ");
+            System.out.println("---------------------------------------------------------------------------------------------");
 
             user.backToMainMenu(scanner, user);
 
