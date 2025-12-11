@@ -208,6 +208,12 @@ public class BankAccountTransaction extends BankAccount {
 
             System.out.println("Current Balance: $" + account.balance);
 
+            if (account.overdraftCount >= overdraftCountCap) { // Stop withdraw operation
+                System.err.println("Your account has already reached maximum overdraft counts. Please deposit to return the balance to a positive amount before you can withdraw again.");
+
+                user.backToMainMenu(inputScanner, user);
+            }
+
             System.out.print("Withdraw Amount (USD): ");
             double amount = Double.parseDouble(inputScanner.nextLine().strip());
 
@@ -236,19 +242,14 @@ public class BankAccountTransaction extends BankAccount {
                     break;
             }
 
-            // Check withdraw amount does not exceed their account's balance
-            // TODO: Change it into overdraw warning and support with penalty for overdraft system
-            if (account.balance < amount && account.overdraftCount >= overdraftCountCap) {
-                System.err.println("Your account has already reached maximum overdraft counts. Please deposit to return the balance to a positive amount before you can withdraw again.");
-
-                user.backToMainMenu(inputScanner, user);
-            }
+            boolean withdrawCapped = false;
 
             if (account.balance < amount && account.overdraftCount < overdraftCountCap) {
                 if (account.overdraftCount == 0) {
                     System.err.println("Your account balance is below $" + amount + ". An overdraft fee of " + overdraftFee + " has been applied.");
 
                 } else {
+                    withdrawCapped = true;
                     System.err.println("Your account balance is below $" + amount
                             + ". An overdraft fee of " + overdraftFee + " has been applied, and withdrawal capped at " + overDraftedWithdrawCap + ".");
                 }
@@ -258,6 +259,8 @@ public class BankAccountTransaction extends BankAccount {
                 // Add transaction in a transaction history file
                 TransactionHistory record = new TransactionHistory(user.cpr, account.bankAccountID, "withdraw", amount, account.balance);
                 record.recordTransaction();
+
+                if (withdrawCapped) amount = overDraftedWithdrawCap;
 
                 System.out.println("Amount of $" + amount + " successfully withdrawn.");
                 System.out.println(" ");
@@ -287,6 +290,9 @@ public class BankAccountTransaction extends BankAccount {
 
         withdrawBankAccount.balance -= amount;
         depositBankAccount.balance += amount;
+
+        if (depositBankAccount.overdraftCount > 0 && depositBankAccount.balance >= 0.0) depositBankAccount.overdraftCount = 0; // Remove overdraft ticks when balance brought back to positive.
+
 
         Boolean[] accountsUpdated = {false, false};
 
