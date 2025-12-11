@@ -6,6 +6,7 @@ import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 /**
@@ -33,8 +34,9 @@ public class UserCreate extends User implements IPassword {
     /**
      * Display the Create New User Command Line prompt.
      */
-    void display(Scanner inputScanner) {
+    void display(Scanner inputScanner, UserRead user) {
         try {
+            if (!Objects.equals(user.userRole, "banker")) throw new RuntimeException("You are not authorized to create new user accounts. Please contact a banker for assistance.");
 
             System.out.println("CREATE NEW USER ACCOUNT");
             System.out.println(" ");
@@ -66,14 +68,16 @@ public class UserCreate extends User implements IPassword {
             System.out.println("Creating new user account...");
             if (save(cpr, firstName, lastName, userRole)) {
                 System.out.println("New user account successfully created.");
+                user.backToMainMenu(inputScanner, user);
+
             } else {
                 System.err.println("New user account creation failed. Please try again.");
-                display(inputScanner);
+                display(inputScanner, user);
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.out.println(" ");
-            display(inputScanner);
+            display(inputScanner, user);
         }
     }
 

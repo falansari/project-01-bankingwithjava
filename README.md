@@ -57,7 +57,7 @@ https://github.com/users/falansari/projects/11/views/1
   - They can still view their data and deposit while overdrafted to encourage them to pay it off :).
 
 ## UNRESOLVED ISSUES
-- Account Search Statement Last 12 Months result is wrong.
+- N/A
 
 ## IDEAS FOR IMPROVEMENTS
 - Add ability to prematurely end any ongoing operation and go back to the main menu without completing the operation.
@@ -75,9 +75,12 @@ The following is for testing the system with pre-existing data:
   - Password: Ring627 (same as above)
   - Checking account ID: 100005
   - Savings account ID: 100006 (this is the account with the dataset)
-- Extra Customer Account without any bank accounts yet (or you can just create one to test feature):
-  - User ID: 66666666
-  - Password: Forgot it.... can reset with banker :D
+- Customer Account without any bank accounts yet (or you can just create one to test feature):
+  - User ID: 15654667
+  - Password: 15654667 (default password on creation)
+- Customer Account with newly created bank accounts no transactions:
+  - User ID: 88888888
+  - Password: 88888888 (default password on creation)
 - Extra Banker Account without any bank accounts yet (or you can just create one to test feature):
   - User ID: 11111111
-  - Password: Forgot it.... can reset with banker :D
+  - Password: 11111111 (default password on creation)
