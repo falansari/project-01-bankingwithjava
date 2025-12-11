@@ -57,7 +57,7 @@ https://github.com/users/falansari/projects/11/views/1
   - They can still view their data and deposit while overdrafted to encourage them to pay it off :).
 
 ## UNRESOLVED ISSUES
-- Overdraft count should be reset with a transfer from another account also not only deposit.
+- Account Search Statement Last 12 Months result is wrong.
 
 ## IDEAS FOR IMPROVEMENTS
 - Add ability to prematurely end any ongoing operation and go back to the main menu without completing the operation.
