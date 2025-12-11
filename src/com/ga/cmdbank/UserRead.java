@@ -93,12 +93,12 @@ public class UserRead extends User implements IPassword {
     void displayMainMenuBanker(UserRead userRead, Scanner inputScanner) throws IOException {
         if (!Objects.equals(userRead.getUserRole(), "banker")) throw new RuntimeException("This menu may only display for a banker.");
 
+        System.out.println(" ");
         System.out.println("Welcome, " + userRead.getFirstName() + " " + userRead.getLastName());
         System.out.println("What would you like to do today?");
         System.out.println("(C) Create new customer");
         System.out.println("(B) Create new customer bank account");
-        System.out.println("(V) View customer's account data");
-        System.out.println("(A) View my own bank accounts");
+        System.out.println("(V) View customer's or own account data");
         System.out.println("(S) View Account Statement");
         System.out.println("(M) Search Account Statement");
         System.out.println("(D) Deposit into bank account");
@@ -116,28 +116,14 @@ public class UserRead extends User implements IPassword {
 
         switch (choice.toLowerCase()) {
             case "c":
-                userCreate.display(inputScanner);
+                userCreate.display(inputScanner, userRead);
                 break;
 
             case "b":
-                bankAccount.displayCreateAccount(inputScanner);
+                bankAccount.displayCreateAccount(inputScanner, userRead);
                 break;
 
             case "v":
-                System.out.println("Customer CPR: ");
-                String cpr = inputScanner.nextLine().strip();
-                UserRead customer = new UserRead();
-                String[] customerData = customer.read(convertCPRInput(cpr));
-                customer.setCprInput(customerData[0]);
-                customer.setCpr(convertCPRInput(customerData[0]));
-                customer.setFirstName(customerData[1]);
-                customer.setLastName(customerData[2]);
-                customer.setUserRole(customerData[3]);
-
-                bankAccount.displayAccountsList(inputScanner, customer);
-                break;
-
-            case "a":
                 bankAccount.displayAccountsList(inputScanner, userRead);
                 break;
 

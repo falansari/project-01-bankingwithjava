@@ -2,3 +2,5 @@
 100002;33333333;savings;510000002;DebitMastercard;15055.6;0
 100005;44444444;checking;530000002;DebitMastercardTitanium;495.0;0
 100006;44444444;savings;550000001;DebitMastercardPlatinum;123788.9;0
+100007;88888888;checking;530000003;DebitMastercardTitanium;0.0;0
+100008;88888888;savings;510000004;DebitMastercard;0.0;0

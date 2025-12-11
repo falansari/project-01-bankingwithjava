@@ -138,6 +138,7 @@ public class BankAccount {
                 valueBreak + bankAccount.accountType +
                 valueBreak + bankAccount.debitCardId +
                 valueBreak + bankAccount.cardType +
+                valueBreak + bankAccount.balance +
                 valueBreak + bankAccount.overdraftCount;
 
         try {
@@ -236,8 +237,11 @@ public class BankAccount {
     /**
      * Display the Create New User Command Line prompt.
      */
-    void displayCreateAccount(Scanner inputScanner) {
+    void displayCreateAccount(Scanner inputScanner, UserRead userRead) {
         try {
+            if (!Objects.equals(userRead.userRole, "banker"))
+                throw new RuntimeException("You are not authorized to create new bank accounts. Please contact a banker for assistance.");
+
             System.out.println("CREATE NEW BANK ACCOUNT");
             System.out.println(" ");
 
@@ -281,16 +285,16 @@ public class BankAccount {
             System.out.println("Creating new bank account...");
             if (createBankAccount(userCPR, accountType, cardType)) {
                 System.out.println("New bank account successfully created.");
-                user.backToMainMenu(inputScanner, user);
+                System.out.println(" ");
+                user.backToMainMenu(inputScanner, userRead);
             } else {
-                System.out.println("New bank account creation failed, please try again.");
-                displayCreateAccount(inputScanner);
+                throw new RuntimeException("New bank account creation failed, please try again.");
             }
 
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.out.println(" ");
-            displayCreateAccount(inputScanner);
+            displayCreateAccount(inputScanner, userRead);
         }
     }
 
@@ -298,35 +302,55 @@ public class BankAccount {
      * View customer's list of bank accounts and their details.
      * @param scanner Scanner System.in input scanner
      * @param user Object   UserRead object, must possess all the details (cpr, firstName, lastName
-     * @throws IOException Exception handling
      */
-    void displayAccountsList(Scanner scanner, UserRead user) throws IOException {
-        System.out.println("BANK ACCOUNTS OF " + user.getFirstName() + " " + user.getLastName() + ":");
-        HashMap<Integer, String[]> userAccounts = new HashMap<>();
-        int count = 0;
+    void displayAccountsList(Scanner scanner, UserRead user) {
+        System.out.print("Customer CPR: ");
+        String cpr = scanner.nextLine().strip();
+        System.out.println(" ");
 
-        for (String account : getAccountsData()) { // Find and store user's accounts
-            String[] accountData = account.split(";");
+        try {
+            UserRead customer = new UserRead();
+            String[] customerData = customer.read(customer.convertCPRInput(cpr));
+            customer.setCprInput(customerData[0]);
+            customer.setCpr(customer.convertCPRInput(customerData[0]));
+            customer.setFirstName(customerData[1]);
+            customer.setLastName(customerData[2]);
+            customer.setUserRole(customerData[3]);
 
-            if (count == 2) break; // There can only be 1 checking and 1 savings account for a user, so allow breaking loop early.
+            if (!Objects.equals(user.getCpr(), customer.getCpr()) && !Objects.equals(user.userRole, "banker"))
+                throw new IOException("You are not authorized to view this customer's data.");
 
-            if (user.getCpr() == Integer.parseInt(accountData[1])) {
-                userAccounts.put(count, accountData);
-                count++;
+            System.out.println("BANK ACCOUNTS OF " + customer.getFirstName() + " " + customer.getLastName() + ":");
+            HashMap<Integer, String[]> userAccounts = new HashMap<>();
+            int count = 0;
+
+            for (String account : getAccountsData()) { // Find and store user's accounts
+                String[] accountData = account.split(";");
+
+                if (count == 2)
+                    break; // There can only be 1 checking and 1 savings account for a user, so allow breaking loop early.
+
+                if (customer.getCpr() == Integer.parseInt(accountData[1])) {
+                    userAccounts.put(count, accountData);
+                    count++;
+                }
             }
+
+            userAccounts.forEach((key, value) -> {
+                System.out.println(value[2].toUpperCase() + " ACCOUNT DETAILS:");
+                System.out.println("Account Number: " + value[0]);
+                System.out.println("Card ID: " + value[3]);
+                System.out.println("Card Type: " + value[4]);
+                System.out.println("Account Balance: $" + value[5]);
+                System.out.println("Times Overdrafted: " + value[6]);
+                System.out.println(" ");
+            });
+
+            user.backToMainMenu(scanner, user);
+
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
         }
-
-        userAccounts.forEach((key, value) -> {
-            System.out.println(value[2].toUpperCase() + " ACCOUNT DETAILS:");
-            System.out.println("Account Number: " + value[0]);
-            System.out.println("Card ID: " + value[3]);
-            System.out.println("Card Type: " + value[4]);
-            System.out.println("Account Balance: $" + value[5]);
-            System.out.println("Times Overdrafted: " + value[6]);
-            System.out.println(" ");
-        });
-
-        user.backToMainMenu(scanner, user);
     }
 
     /**
