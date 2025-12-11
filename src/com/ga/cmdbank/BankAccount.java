@@ -485,8 +485,8 @@ public class BankAccount {
                     break;
 
                 case 6: // Last 30 days
-                    startDate = LocalDate.now().minusMonths(2);
-                    endDate = LocalDate.now().minusMonths(1);
+                    startDate = LocalDate.now().minusDays(29);
+                    endDate = LocalDate.now();
                     title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " LAST 30 DAYS STATEMENT";
                     break;
 
@@ -496,9 +496,9 @@ public class BankAccount {
                     title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " THIS YEAR'S STATEMENT";
                     break;
 
-                case 8: // Last Year
-                    startDate = LocalDate.now().minusYears(2);
-                    endDate = LocalDate.now().minusYears(1);
+                case 8: // Last 12 months
+                    startDate = LocalDate.now().minusDays(364);
+                    endDate = LocalDate.now();
                     title = account.accountType.toUpperCase() + " ACCOUNT NO." + account.bankAccountID + " LAST 12 MONTHS STATEMENT";
                     break;
 
